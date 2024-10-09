@@ -10,8 +10,8 @@ string level_name[4] = {"收发室", "sub走廊", "平等化室", "自由关卡"
 int checkPlayProgress();  // 检查历史最高游玩层数（打算之后每次刷新层数，就把那个文件覆盖掉，输入新的值）
 int chooseYourLevel(int); // 判断玩家选择层数是否合法
 void printLevelName(int); // 输出关卡名字，以其是否可以选择
-
 int continueToPlay();//每一关结束后判断一次
+int updateHighLevel(int,int);
 
 void task1();
 void task2();
@@ -52,7 +52,10 @@ int main()
                 task4();
                 continue_to_play=continueToPlay();
             }
-            if(now_level!=3) now_level++;
+            if(now_level!=3){
+                now_level++;
+                highest_level=updateHighLevel(now_level,highest_level);
+            }
         }
     }
     
@@ -126,11 +129,11 @@ int continueToPlay(){
         cin >> continue_play;
     }
     if(continue_play==2){
-        cout<<"您确定结束游戏吗？\n"<<"是   or   否";
+        cout<<"您确定结束游戏吗？\n"<<"是   or   否\n";
         string yes_no;
         cin>>yes_no;
         while(yes_no!="是"&&yes_no!="否"){
-            cout<<"请输入正确的操作：\n"<<"是   or   否";
+            cout<<"请输入正确的操作：\n"<<"是   or   否\n";
             string yes_no;
             cin>>yes_no;
         }
@@ -166,4 +169,15 @@ void printf_green(const char *s)
 void printf_yellow(const char *s)
 {
     printf("\033[0m\033[1;33m%s\033[0m", s);
+}
+
+int updateHighLevel(int now_level,int highest_level){
+    if(now_level>highest_level){
+        FILE* f=fopen("PlayProgress.txt","w+");
+        fputc(now_level,f);
+        fclose(f);
+        highest_level=now_level;
+    }
+    return highest_level;
+
 }

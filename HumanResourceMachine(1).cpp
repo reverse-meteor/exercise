@@ -62,17 +62,18 @@ int checkPlayProgress()
 {
 
     using namespace std;
-    ifstream fin;
+    FILE* fin=fopen("PlayProgress.txt","w+");// 打开记录最高关卡的文件，从而实现重启程序仍然可以有曾经的记录
     int highest_level;
-    fin.open("PlayProgress.txt"); // 打开记录最高关卡的文件，从而实现重启程序仍然可以有曾经的记录
-    if (!fin)
+    if (fgetc(fin)==-1)
     {
         cout << "未找到您曾经的游玩记录，请从第一关重新开始\n";
+        fclose(fin);
         return 0;
     } // 如果打开文件失败（网上说可能会有各种原因，我暂时还不知道）
     else
     {
-        fin >> highest_level; // 从该文件开头读起的第一个int，如果文件为空，结果为0
+        highest_level=fgetc(fin); // 从该文件开头读起的第一个int，如果文件为空，结果为0
+        fclose(fin);
         return highest_level;
     }
 }

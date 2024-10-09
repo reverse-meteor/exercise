@@ -26,18 +26,35 @@ int main()
 {
     printf_yellow("Human Resource Machine\n");
     std::cout<<"\n======================================================\n\n";
-    int highest_level = checkPlayProgress();
-
-    int now_level = chooseYourLevel(highest_level);
-    // std::cout<<now_level;//调试代码用的
-    if (now_level == 0)
-        task1();
-    else if (now_level == 1)
-        task2();
-    else if (now_level == 2)
-        task3();
-    else if (now_level == 3)
-        task4();
+    int continue_to_play = 1;
+    while(continue_to_play==1){
+        int highest_level = checkPlayProgress();
+        int now_level = chooseYourLevel(highest_level);
+        continue_to_play=0;
+        while(continue_to_play==0){
+            
+        // std::cout<<now_level;//调试代码用的
+            if (now_level == 0){
+            task1();
+            continue_to_play=continueToPlay();
+            }
+            else if (now_level == 1){
+                task2();
+                continue_to_play=continueToPlay();
+            }
+            
+            else if (now_level == 2){
+                task3();
+                continue_to_play=continueToPlay();
+            }
+            
+            else if (now_level == 3){
+                task4();
+                continue_to_play=continueToPlay();
+            }
+            if(now_level!=3) now_level++;
+        }
+    }
     
 }
 
@@ -149,5 +166,3 @@ void printf_yellow(const char *s)
 {
     printf("\033[0m\033[1;33m%s\033[0m", s);
 }
-
-

@@ -1,205 +1,304 @@
 #include <iostream>
 #include <fstream>
-#include <cstdio>
-#include <cstring>
-#include <string>
-#include <iomanip>
+#include <windows.h>
 using namespace std;
-string level_name[4] = {"收发室", "sub走廊", "平等化室", "自由关卡"}; // 存储关卡名字，第四关到时候改一下
+void printf_red(const char* s);
+void printf_green(const char* s);
+void printf_yellow(const char* s);
 
-int checkPlayProgress();  // 检查历史最高游玩层数（打算之后每次刷新层数，就把那个文件覆盖掉，输入新的值）
-int chooseYourLevel(int); // 判断玩家选择层数是否合法
-void printLevelName(int); // 输出关卡名字，以其是否可以选择
-int continueToPlay();     // 每一关结束后判断一次
-int updateHighLevel(int, int);
+int highest_level=0;
+string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
 
-void task1();
-void task2();
-void task3();
-void task4();
+class base_task
+{
+public:
+    void recordGame()
+    {
+        ofstream ofs;
+        ofs.open("D:\\code_store\\PlayProgress.txt", ios::trunc);
+        ofs << highest_level;
+        ofs.close();
+    }
+    virtual void dotask() {}
+    int getRecord()
+    {
+        ifstream ifs;
+        ifs.open("D:\\code_store\\PlayProgress.txt", ios::in);
+        if (!ifs.is_open())
+        {
+            cout << "游玩记录文件打开失败" << endl;
+        }
+        char c;
+        c=ifs.get();
+        ifs.close();
+        return c - 48;
+    }
+    void updateHighest_level()
+    {
+        int temp = getRecord();
+        if (temp < finish_level)
+            highest_level = finish_level;
+    }
+    bool continueToPlay()
+    {
+        cout << "您是否要继续游玩下一关?" << endl;
+        cout << "继续游玩请输入是,退出游戏请输入否" << endl;
+        string continue_choice;
+        cin >> continue_choice;
+        if (continue_choice == "是")
+        {
+            system("cls");
+            printf_yellow("返回菜单中...\n");
+            Sleep(2000);
+            system("cls");
+            return true;
+        }
+        if (continue_choice == "否")
+        {
+            system("cls");
+            printf_yellow("欢迎您下次游玩！\n");
+            Sleep(2000);
+            return false;
+        }
+    }
+    void showBlock(int num)
+    {
+        cout<<"+---+"<<endl;
+        cout<<"| "<<num<<" |"<<endl;
+        cout<<"+---+"<<endl;
+    }
+    void showRobot()
+    {
+        cout<<"-----"<<endl;
+        cout<<"|@ @|"<<endl;
+        cout<<"  +  "<<endl;
+        cout<<"/   \\"<<endl;
+        cout<<" | | "<<endl; 
+    }
+    virtual ~base_task() {};
 
-void printf_red(const char *s);
-void printf_green(const char *s);
-void printf_yellow(const char *s);
+public:
+    int finish_level=0; // 记录当前关卡方便与highest_level进行比较
+};
+
+class task01 : virtual public base_task
+{
+public:
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: 收发室"); 
+        Sleep(2000);
+        system("cls");
+
+        // 关卡内容
+
+        cout<<"关卡信息:让机器人取出输入序列上的每个积木放入输出序列中"<<endl;
+        cout<<"可用空地数:0"<<endl;
+        cout<<"可用指令集:Inbox,Outbox"<<endl;
+
+        // if success
+        printf_green("挑战成功！");
+        Sleep(2000);
+        finish_level = 1;
+        system("cls"); // 判断是否成功，到main函数实现
+    }
+    
+};
+
+class task02 : virtual public base_task
+{
+public:
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: sub走廊");
+        Sleep(2000);
+        system("cls");
+
+        // 关卡内容
+
+        // if success
+
+        printf_green("挑战成功！");
+        finish_level = 2;
+        Sleep(2000);
+        system("cls");
+    }
+};
+
+class task03 : virtual public base_task
+{
+public:
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: 平等化室");
+        Sleep(2000);
+        system("cls");
+
+        // 关卡内容
+
+        // if success
+
+        printf_green("挑战成功！");
+        Sleep(2000);
+        finish_level = 3;
+        system("cls");
+    }
+};
+
+class task04 : virtual public base_task
+{
+public:
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: 待定");
+        Sleep(2000);
+        system("cls");
+
+        // 关卡内容
+
+        // if success
+
+        printf_green("挑战成功！");
+        Sleep(2000);
+        finish_level = 4;
+        system("cls");
+    }
+};
+
+void showMenu()
+{
+    if (highest_level != 0)
+    {
+        cout << "您当前游玩的最高纪录为:第" << highest_level << "关" << endl;
+    }
+    else
+    {
+        cout << "未找到您的游玩记录,请从第一关开始游玩" << endl;
+    }
+    cout << "请选择您想要挑战的关卡" << endl;
+    for (int i = 0; i < 4; i++)
+    {
+        cout << "关卡" << i + 1 << "     " << level_name[i] << endl;
+    }
+}
+
+int chooseLevel()
+{
+    int chosen_level;
+    cin >> chosen_level;
+    if (chosen_level > (highest_level + 1))
+    {
+        system("cls");
+        printf_red("您必须先通关先前的关卡!\n");
+        Sleep(2000);
+        system("cls");
+        return -1;
+    }
+    else
+    {
+        system("cls");
+        printf_green("正在进入关卡中...\n");
+        Sleep(2000);
+        system("cls");
+        return chosen_level;
+    }
+}
 
 int main()
 {
     printf_yellow("Human Resource Machine\n");
     cout << "\n======================================================\n\n";
-    int continue_to_play = 1;
-    while (continue_to_play == 1)
+    bool is_continue=true;
+    while (is_continue)
     {
-        int highest_level = checkPlayProgress();
-        int now_level = chooseYourLevel(highest_level);
-        continue_to_play = 0;
-        while (continue_to_play == 0)
+        a:
+        showMenu();
+        int user_choice = chooseLevel(); // user_choice==chosen_level
+        if (user_choice != -1)
         {
-
-            // std::cout<<now_level;//调试代码用的
-            if (now_level == 0)
+            switch (user_choice)
             {
-                task1();
-                continue_to_play = continueToPlay();
+            case 1:
+            {
+                base_task* base01 = new task01;
+                base01->recordGame();
+                base01->dotask();
+                base01->updateHighest_level();
+                is_continue = base01->continueToPlay();
+                if (base01 != NULL)
+                {
+                    delete base01;
+                    base01 = NULL;
+                }
+                break;
             }
-            else if (now_level == 1)
+            case 2:
             {
-                task2();
-                continue_to_play = continueToPlay();
+                base_task* base02 = new task02;
+                base02->recordGame();
+                base02->dotask();
+                base02->updateHighest_level();
+                is_continue = base02->continueToPlay();
+                if (base02 != NULL)
+                {
+                    delete base02;
+                    base02 = NULL;
+                }
+                break;
             }
-
-            else if (now_level == 2)
+            case 3:
             {
-                task3();
-                continue_to_play = continueToPlay();
+                base_task* base03 = new task03;
+                base03->recordGame();
+                base03->dotask();
+                base03->updateHighest_level();
+                is_continue = base03->continueToPlay();
+                if (base03 != NULL)
+                {
+                    delete base03;
+                    base03 = NULL;
+                }
+                break;
             }
-
-            else if (now_level == 3)
+            case 4:
             {
-                task4();
-                continue_to_play = continueToPlay();
+                base_task* base04 = new task04;
+                base04->recordGame();
+                base04->dotask();
+                base04->updateHighest_level();
+                is_continue = base04->continueToPlay();
+                if (base04 != NULL)
+                {
+                    delete base04;
+                    base04 = NULL;
+                }
+                break;
             }
-            if (now_level != 3)
+            default:
             {
-                now_level++;
-                highest_level = updateHighLevel(now_level, highest_level);
+                printf_red("输入错误,请输入正确的关卡编号！\n");
+                Sleep(2000);
+                system("cls");
+                goto a;
+                break;
+            }
             }
         }
     }
+    return 0;
 }
 
-int checkPlayProgress()
-{
-
-    using namespace std;
-    FILE *fin = fopen("PlayProgress.txt", "a+"); // 打开记录最高关卡的文件，从而实现重启程序仍然可以有曾经的记录
-    int highest_level;
-    int store; // 存储读到的数字
-    if ((store = fgetc(fin)) == -1)
-    // if(!fin)
-    {
-        cout << "未找到您曾经的游玩记录，请从第一关重新开始\n";
-        fclose(fin);
-        return 0;
-    } // 如果打开文件失败（网上说可能会有各种原因，我暂时还不知道）
-    else
-    {
-        highest_level = store; // 从该文件开头读起的第一个int，如果文件为空，结果为0
-        cout << highest_level;
-        fclose(fin);
-        return highest_level;
-    }
-}
-
-int chooseYourLevel(int highest_level)
-{
-    using namespace std;
-    cout << "请选择您想要挑战的关卡\n";
-    printLevelName(highest_level);
-    cout << "注：只需要关卡对应的阿拉伯数字(1,2,3......)\n";
-    int choosing_level;
-    cin >> choosing_level;
-    while ((choosing_level != 1 && choosing_level != 2 && choosing_level != 3 && choosing_level != 4) || (choosing_level - 1 > highest_level))
-    {
-        if ((choosing_level != 1 && choosing_level != 2 && choosing_level != 3 && choosing_level != 4))
-        {
-            printf_red("关卡信息输入有误，请重新输入\n");
-        }
-        else
-        {
-            printf_red("您暂且无法选择对应关卡,请重新输入\n");
-        }
-        cin >> choosing_level;
-    }
-    return choosing_level - 1;
-}
-
-void printLevelName(int level)
-{
-    using namespace std;
-    for (int i = 0; i < 4; i++)
-    {
-        cout << "关卡" << i + 1 << right << setw(20) << level_name[i]; // 这里对齐是按所占字节对齐，中文占了两个字节，但是显示没占到两格的宽度，所以最后结果没有对齐
-        if (i <= level)
-            printf_green("  您可以选择\n"); // 感觉这个可以优化一下
-        else
-            printf_red("  您不可以选择\n");
-    }
-    return;
-}
-
-int continueToPlay()
-{
-    int continue_play = 0;
-    using namespace std;
-    cout << "请选择操作：\n"
-         << "下一关   输入0\n"
-         << "回到目录 输入1\n"
-         << "结束游戏 输入2\n";
-    cin >> continue_play;
-    while (continue_play != 0 && continue_play != 1 && continue_play != 2)
-    {
-        printf_red("请输入正确的操作：\n");
-        printf("下一关   输入0\n回到目录 输入1\n结束游戏 输入2\n");
-        cin >> continue_play;
-    }
-    if (continue_play == 2)
-    {
-        cout << "您确定结束游戏吗？\n"
-             << "是   or   否\n";
-        string yes_no;
-        cin >> yes_no;
-        while (yes_no != "是" && yes_no != "否")
-        {
-            cout << "请输入正确的操作：\n"
-                 << "是   or   否\n";
-            string yes_no;
-            cin >> yes_no;
-        }
-        if (yes_no == "是")
-            return continue_play;
-        else
-            continue_play = continueToPlay();
-    }
-    return continue_play;
-}
-
-void task1()
-{
-}
-void task2()
-{
-}
-void task3()
-{
-}
-void task4()
-{
-}
-
-void printf_red(const char *s)
+void printf_red(const char* s)
 {
     printf("\033[0m\033[1;31m%s\033[0m", s);
 }
 
-void printf_green(const char *s)
+void printf_green(const char* s)
 {
     printf("\033[0m\033[1;32m%s\033[0m", s);
 }
 
-void printf_yellow(const char *s)
+void printf_yellow(const char* s) 
 {
     printf("\033[0m\033[1;33m%s\033[0m", s);
 }
-
-int updateHighLevel(int now_level, int highest_level)
-{
-    if (now_level > highest_level)
-    {
-        FILE *f = fopen("PlayProgress.txt", "w+");
-        fputc(now_level, f);
-        fclose(f);
-        highest_level = now_level;
-    }
-    return highest_level;
-}
-

@@ -6,7 +6,7 @@ void printf_red(const char* s);
 void printf_green(const char* s);
 void printf_yellow(const char* s);
 
-int highest_level=0;
+int highest_level = 0;
 string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
 
 class base_task
@@ -15,7 +15,7 @@ public:
     void recordGame()
     {
         ofstream ofs;
-        ofs.open("D:\\code_store\\PlayProgress.txt", ios::trunc);
+        ofs.open("PlayProgress.txt", ios::trunc);
         ofs << highest_level;
         ofs.close();
     }
@@ -23,13 +23,13 @@ public:
     int getRecord()
     {
         ifstream ifs;
-        ifs.open("D:\\code_store\\PlayProgress.txt", ios::in);
+        ifs.open("PlayProgress.txt", ios::in);
         if (!ifs.is_open())
         {
             cout << "游玩记录文件打开失败" << endl;
         }
         char c;
-        c=ifs.get();
+        c = ifs.get();
         ifs.close();
         return c - 48;
     }
@@ -63,22 +63,22 @@ public:
     }
     void showBlock(int num)
     {
-        cout<<"+---+"<<endl;
-        cout<<"| "<<num<<" |"<<endl;
-        cout<<"+---+"<<endl;
+        cout << "+---+" << endl;
+        cout << "| " << num << " |" << endl;
+        cout << "+---+" << endl;
     }
     void showRobot()
     {
-        cout<<"-----"<<endl;
-        cout<<"|@ @|"<<endl;
-        cout<<"  +  "<<endl;
-        cout<<"/   \\"<<endl;
-        cout<<" | | "<<endl; 
+        cout << "-----" << endl;
+        cout << "|@ @|" << endl;
+        cout << "  +  " << endl;
+        cout << "/   \\" << endl;
+        cout << " | | " << endl;
     }
     virtual ~base_task() {};
 
 public:
-    int finish_level=0; // 记录当前关卡方便与highest_level进行比较
+    int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
 };
 
 class task01 : virtual public base_task
@@ -86,15 +86,15 @@ class task01 : virtual public base_task
 public:
     void dotask()
     {
-        printf_yellow("您当前游玩的关卡是: 收发室"); 
+        printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
         system("cls");
 
         // 关卡内容
 
-        cout<<"关卡信息:让机器人取出输入序列上的每个积木放入输出序列中"<<endl;
-        cout<<"可用空地数:0"<<endl;
-        cout<<"可用指令集:Inbox,Outbox"<<endl;
+        cout << "关卡信息:让机器人取出输入序列上的每个积木放入输出序列中" << endl;
+        cout << "可用空地数:0" << endl;
+        cout << "可用指令集:Inbox,Outbox" << endl;
 
         // if success
         printf_green("挑战成功！");
@@ -102,7 +102,7 @@ public:
         finish_level = 1;
         system("cls"); // 判断是否成功，到main函数实现
     }
-    
+
 };
 
 class task02 : virtual public base_task
@@ -176,10 +176,21 @@ void showMenu()
         cout << "未找到您的游玩记录,请从第一关开始游玩" << endl;
     }
     cout << "请选择您想要挑战的关卡" << endl;
-    for (int i = 0; i < 4; i++)
-    {
-        cout << "关卡" << i + 1 << "     " << level_name[i] << endl;
-    }
+    printf_green("+------+------+------+------+\n");
+    printf_green("|  ");
+    if (0 <= highest_level) printf_yellow("01  ");
+    else printf_red("01  ");
+    printf_green("|  ");
+    if (1 <= highest_level) printf_yellow("02  ");
+    else printf_red("02  ");
+    printf_green("|  ");
+    if (2 <= highest_level) printf_yellow("03  ");
+    else printf_red("03  ");
+    printf_green("|  ");
+    if (3 <= highest_level) printf_yellow("04  ");
+    else printf_red("04  ");
+    printf_green("|  ");
+    printf_green("\n+------+------+------+------+\n");
 }
 
 int chooseLevel()
@@ -208,10 +219,10 @@ int main()
 {
     printf_yellow("Human Resource Machine\n");
     cout << "\n======================================================\n\n";
-    bool is_continue=true;
+    bool is_continue = true;
     while (is_continue)
     {
-        a:
+    a:
         showMenu();
         int user_choice = chooseLevel(); // user_choice==chosen_level
         if (user_choice != -1)
@@ -298,7 +309,7 @@ void printf_green(const char* s)
     printf("\033[0m\033[1;32m%s\033[0m", s);
 }
 
-void printf_yellow(const char* s) 
+void printf_yellow(const char* s)
 {
     printf("\033[0m\033[1;33m%s\033[0m", s);
 }

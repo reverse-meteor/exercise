@@ -53,12 +53,20 @@ public:
             system("cls");
             return true;
         }
-        if (continue_choice == "否")
+        else if (continue_choice == "否")
         {
             system("cls");
             printf_yellow("欢迎您下次游玩！\n");
             Sleep(2000);
             return false;
+        }
+        else
+        {
+            system("cls");
+            printf_red("输入错误！请重新选择！\n");
+            Sleep(2000);
+            system("cls");
+            return continueToPlay();
         }
     }
     void showBlock(int num)
@@ -217,6 +225,21 @@ int chooseLevel()
 
 int main()
 {
+    fstream fs;
+    fs.open("PlayProgress.txt", ios::in );
+    if (fs.get() == -1)
+    {
+        highest_level = fs.get() + 1;
+        fs.close();
+    }
+    else
+    {
+        fs.close();
+        ifstream rfs;
+        rfs.open("PlayProgress.txt", ios::in);
+        highest_level = rfs.get()-47;
+        rfs.close();
+    }
     printf_yellow("Human Resource Machine\n");
     cout << "\n======================================================\n\n";
     bool is_continue = true;

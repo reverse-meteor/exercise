@@ -1,6 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <windows.h>
+#include <string>
+#include <cstring>
+#include <ctime>
+
 using namespace std;
 void printf_red(const char* s);
 void printf_green(const char* s);
@@ -69,22 +73,43 @@ public:
             return continueToPlay();
         }
     }
-    void showBlock(int num)
-    {
-        cout << "+---+" << endl;
-        cout << "| " << num << " |" << endl;
-        cout << "+---+" << endl;
+    void showInOut() {
+        
     }
-    void showRobot()
+    void showBlock(char num,int x1,int y1)
     {
-        cout << "-----" << endl;
-        cout << "|@ @|" << endl;
+        gotoxy(x1, y1);
+        cout << "+---+" ;
+        gotoxy(x1, y1+1);
+        cout << "| " << num << " |" ;
+        gotoxy(x1, y1+2);
+        cout << "+---+" ;
+    }
+    void showRobot(bool carry,int x1,char carry_num)
+    {
+        if (carry) {//扛着东西  
+            showBlock(carry_num, x1, 10);
+        }
+        gotoxy(x1, 14);
+        cout << "-----" ;
+        gotoxy(x1, 15);
+        cout << "|@ @|" ;
+        gotoxy(x1, 16);
         cout << "  +  " << endl;
+        gotoxy(x1, 17);
         cout << "/   \\" << endl;
+        gotoxy(x1, 18);
         cout << " | | " << endl;
     }
+    void gotoxy(int x, int y) { //光标
+        short m = short(x);
+        short n = short(y);
+        COORD pos = { m, n };
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        SetConsoleCursorPosition(hOut, pos);
+    }
     virtual ~base_task() {};
-
+    
 public:
     int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
 };
@@ -97,18 +122,45 @@ public:
         printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
         system("cls");
-
+        srand(time(0));
+        char num1 = '0'+rand() % 10;
+        char num2 = '0' + rand() % 10;
+        char num3 = '0' + rand() % 10;
+        
         // 关卡内容
-
-        cout << "关卡信息:让机器人取出输入序列上的每个积木放入输出序列中" << endl;
+        cout << "欢迎新员工！这是你的第一天" << endl;
+        cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
         cout << "可用空地数:0" << endl;
         cout << "可用指令集:Inbox,Outbox" << endl;
-
+        printScreen(num1, num2, num3);
+        
         // if success
+        int n;
+        cin >> n;
         printf_green("挑战成功！");
         Sleep(2000);
         finish_level = 1;
         system("cls"); // 判断是否成功，到main函数实现
+    }
+
+    void printScreen(char num1,char num2,char num3) {
+        gotoxy(0, 8);
+        cout << "Inbox"<<endl<<endl;
+        showBlock(num1,0,10);
+        showBlock(num2,0,13);
+        showBlock(num3,0,16);
+        showBlock('X',0,19);
+        showBlock('X',0,22);
+        showBlock('X',0,25);
+        showRobot(0, 10, '0');
+
+        gotoxy(34, 8);
+        cout << "Outbox";
+        showBlock('X', 34, 10);
+        showBlock('X',34, 13);
+        showBlock('X',34, 16);
+        showBlock('X',34, 19);
+        /*gotoxy()*/
     }
 
 };
@@ -184,21 +236,21 @@ void showMenu()
         cout << "未找到您的游玩记录,请从第一关开始游玩" << endl;
     }
     cout << "请选择您想要挑战的关卡" << endl;
-    printf_green("+------+------+------+------+\n");
+    printf_green("+-----+-----+-----+-----+\n");
     printf_green("|  ");
-    if (0 <= highest_level) printf_yellow("01  ");
-    else printf_red("01  ");
+    if (0 <= highest_level) printf_yellow("1  ");
+    else printf_red("1  ");
     printf_green("|  ");
-    if (1 <= highest_level) printf_yellow("02  ");
-    else printf_red("02  ");
+    if (1 <= highest_level) printf_yellow("2  ");
+    else printf_red("2  ");
     printf_green("|  ");
-    if (2 <= highest_level) printf_yellow("03  ");
-    else printf_red("03  ");
+    if (2 <= highest_level) printf_yellow("3  ");
+    else printf_red("3  ");
     printf_green("|  ");
-    if (3 <= highest_level) printf_yellow("04  ");
-    else printf_red("04  ");
+    if (3 <= highest_level) printf_yellow("4  ");
+    else printf_red("4  ");
     printf_green("|  ");
-    printf_green("\n+------+------+------+------+\n");
+    printf_green("\n+-----+-----+-----+-----+\n");
 }
 
 int chooseLevel()
@@ -226,7 +278,7 @@ int chooseLevel()
 int main()
 {
     fstream fs;
-    fs.open("PlayProgress.txt", ios::in );
+    fs.open("PlayProgress.txt", ios::in);
     if (fs.get() == -1)
     {
         highest_level = fs.get() + 1;
@@ -237,7 +289,7 @@ int main()
         fs.close();
         ifstream rfs;
         rfs.open("PlayProgress.txt", ios::in);
-        highest_level = rfs.get()-47;
+        highest_level = rfs.get() - 47;
         rfs.close();
     }
     printf_yellow("Human Resource Machine\n");

@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string>
 #include <cstring>
+#include <vector>
 #include <ctime>
 
 using namespace std;
@@ -123,16 +124,22 @@ public:
         Sleep(2000);
         system("cls");
         srand(time(0));
-        char num1 = '0'+rand() % 10;
-        char num2 = '0' + rand() % 10;
-        char num3 = '0' + rand() % 10;
-        
+        char num[3];
+        num[0] = '0' + rand() % 10;
+        num[1] = '0' + rand() % 10;
+        num[2] = '0' + rand() % 10;
+        vector<char> inbox;
+        for (int i = 0; i < 3; i++) {
+            inbox.push_back(num[i]);
+        }
+        vector<char> outbox;
         // 关卡内容
         cout << "欢迎新员工！这是你的第一天" << endl;
         cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
         cout << "可用空地数:0" << endl;
-        cout << "可用指令集:Inbox,Outbox" << endl;
-        printScreen(num1, num2, num3);
+        cout << "可用指令集:inbox,outbox" << endl;
+        printScreen(inbox,outbox);
+        
         
         // if success
         int n;
@@ -142,24 +149,59 @@ public:
         finish_level = 1;
         system("cls"); // 判断是否成功，到main函数实现
     }
+    void instructInbox(char num) {
 
-    void printScreen(char num1,char num2,char num3) {
+    }
+    void instructOutbox(char num) {
+
+    }
+    
+    void printScreen(vector<char> &inbox, vector<char> &outbox) {
         gotoxy(0, 8);
         cout << "Inbox"<<endl<<endl;
-        showBlock(num1,0,10);
-        showBlock(num2,0,13);
-        showBlock(num3,0,16);
-        showBlock('X',0,19);
-        showBlock('X',0,22);
-        showBlock('X',0,25);
+        int inbox_size = inbox.size();
+        for (int i = 0; i < inbox_size; i++) {
+            showBlock(inbox[i], 0, 10 + i * 3);   
+        }
+        for (int i = inbox_size; i < 3; i++) {
+            showBlock('X', 0, 10 + i * 3 );
+        }
         showRobot(0, 10, '0');
 
         gotoxy(34, 8);
         cout << "Outbox";
-        showBlock('X', 34, 10);
-        showBlock('X',34, 13);
-        showBlock('X',34, 16);
-        showBlock('X',34, 19);
+        int outbox_size = outbox.size();
+        for (int i = 0; i < outbox_size; i++) {
+            showBlock(outbox[i], 34, 10+i*3);
+        }
+
+        for (int i = outbox_size; i < 3; i++) {
+            showBlock('X', 34, 10 + i * 3);
+        }
+
+
+        for (int i = 0; i < 20; i++) {
+            gotoxy(41, 8 + i);
+            cout << '|';
+            gotoxy(53, 8 + i);
+            cout << '|';
+        }
+        gotoxy(43, 8);
+        cout << "可用代码";
+        gotoxy(43,10);
+        cout << "Inbox";
+        gotoxy(43, 12);
+        cout << "Outbox";
+
+
+        gotoxy(55, 7);
+        cout << "你的代码";
+        gotoxy(72, 8);
+        cout << "运行";
+        gotoxy(72, 10);
+        cout << "撤回";
+        gotoxy(55, 8);
+        cout << "=====CODE=====";
         /*gotoxy()*/
     }
 

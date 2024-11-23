@@ -19,15 +19,15 @@ string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
 class base_task
 {
 public:
-    void recordGame()
+    void recordGame()     //记录游戏记录
     {
         ofstream ofs;
-        ofs.open("PlayProgress.txt", ios::trunc);
-        ofs << highest_level;
+        ofs.open("PlayProgress.txt", ios::trunc);//trunc模式打开游戏记录文件，清除原来的记录
+        ofs << highest_level;//写入现在游玩的最高关卡
         ofs.close();
     }
     virtual void dotask() {}
-    int getRecord()
+    int getRecord()//读取游戏记录文件，得到之前游玩的最高关卡
     {
         ifstream ifs;
         ifs.open("PlayProgress.txt", ios::in);
@@ -40,11 +40,13 @@ public:
         ifs.close();
         return c - 48;
     }
-    void updateHighest_level()
+    void updateHighest_level()//更新当前的最高游玩记录
     {
-        int temp = getRecord();
-        if (temp < finish_level)
+        int temp = getRecord();//temp变量记录之前游玩的最高关卡
+        if (temp < finish_level)//和现在完成的关卡进行比较，对最高游玩记录进行更新
             highest_level = finish_level;
+        if (highest_level > 4)
+            highest_level = 4;
     }
     bool continueToPlay()
     {
@@ -73,13 +75,10 @@ public:
             printf_red("输入错误！请重新选择！\n");
             Sleep(2000);
             system("cls");
-            return continueToPlay();
+            return continueToPlay();//输入错误，重新执行当前函数
         }
     }
-    void showInOut() {
-
-    }
-    void showBlock(char num, int x1, int y1)
+    void showBlock(char num, int x1, int y1)//实现在指定位置显示积木块的功能
     {
         gotoxy(x1, y1);
         cout << "+---+";
@@ -88,10 +87,10 @@ public:
         gotoxy(x1, y1 + 2);
         cout << "+---+";
     }
-    void showRobot(bool carry, int x1, char carry_num)
+    void showRobot(bool carry, int x1, char carry_num)//
     {
         for (int i = 10; i <= 18; i++) {
-            for (int j = x1+5; j < 34; j++) {
+            for (int j = x1 + 5; j < 34; j++) {
                 gotoxy(j, i);
                 cout << ' ';
             }
@@ -101,13 +100,14 @@ public:
                 gotoxy(j, i);
                 cout << ' ';
             }
-        }
+        }//用空格覆盖机器人，消除机器人行走拖尾
+        
         if (carry) {//扛着东西  
             showBlock(carry_num, x1, 10);
             gotoxy(x1, 13);
             cout << "@   @";
         }
-        
+
         gotoxy(x1, 14);
         cout << "-----";
         gotoxy(x1, 15);
@@ -119,16 +119,16 @@ public:
         gotoxy(x1, 18);
         cout << " | | " << endl;
     }
-    void gotoxy(int x, int y) { //光标
+    void gotoxy(int x, int y) { //更改光标位置，实现在指定位置输出的功能
         short m = short(x);
         short n = short(y);
         COORD pos = { m, n };
         HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleCursorPosition(hOut, pos);
     }
-    void getInstructs(int n, vector<string>& instructs) {//操作输入
+    void getInstructs(int n, vector<string>& instructs) {//vector容器存储用户输入的指令集
         string input;
-        getline(cin, input);
+        getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
         for (int i = 1; i <= n; i++) {
             gotoxy(57, 9 + i);
             cout << i << ' ';
@@ -136,25 +136,40 @@ public:
             instructs.push_back(input);
         }
     }
-    virtual ~base_task() {};
+    void printInbox(vector<char>& inbox) {//打印inbox
+        gotoxy(0, 8);
+        cout << "Inbox" << endl << endl;
+        int inbox_size = inbox.size();
+        for (int i = 0; i < inbox_size; i++) {
+            showBlock(inbox[i], 0, 10 + i * 3);
+        }
+        for (int i = inbox_size; i < 4; i++) {//这里inbox数量可以改变
+            showBlock('X', 0, 10 + i * 3);
+        }
 
-public:
-    int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
-};
+    }
+    void printOutbox(vector<char>& outbox) {//打印outbox
+        gotoxy(34, 8);
+        cout << "Outbox";
+        int outbox_size = outbox.size();
+        for (int i = 0; i < outbox_size; i++) {
+            showBlock(outbox[i], 34, 10 + i * 3);
+        }
 
-class task01 : virtual public base_task
-{
-public:
+        for (int i = outbox_size; i < 4; i++) {//这里outbox数量可以改变
+            showBlock('X', 34, 10 + i * 3);
+        }
+    }
     char instructInbox(char onhand, vector<char>& inbox) {//inbox操作
-        
+
         Sleep(500);
         for (int i = 9; i >= 6; i--) {
             showRobot(0, i, '0');
             Sleep(500);
         }
-        onhand = inbox[0];
+        onhand = inbox[0];  //onhand变量记录机器人搬的东西
         inbox.erase(inbox.begin());
-        
+
         showRobot(1, 6, onhand);
         for (int i = 0; i < 6; i++) {//去除箱子所在位置的内容
             gotoxy(0, 8 + i);
@@ -171,9 +186,9 @@ public:
         }
         return onhand;
     }
-    char instructOutbox( char onhand,vector<char>& outbox) {//outbox操作
-        Sleep(500); 
-        for (int i = 11; i <=29; i++) {
+    char instructOutbox(char onhand, vector<char>& outbox) {//outbox操作
+        Sleep(500);
+        for (int i = 11; i <= 29; i++) {
             showRobot(1, i, onhand);
             Sleep(500);
         }
@@ -193,21 +208,84 @@ public:
         }
         return onhand;
     }
+    void printScreen(vector<char>& inbox, vector<char>& outbox) {//打印游戏界面
+        printInbox(inbox);
 
-    int doInstructs(int n, vector<string>& instructs,vector<char>& inbox, vector<char>& outbox) {//操作执行
-        char on_hand= 'X';
+        showRobot(0, 10, '0');
+
+        printOutbox(outbox);
+
+
+        for (int i = 0; i < 20; i++) {
+            gotoxy(41, 8 + i);
+            cout << '|';
+            gotoxy(53, 8 + i);
+            cout << '|';
+        }
+
+        gotoxy(43, 8);
+        cout << "可用代码";//后续关卡如需要打印新的可用代码需要自行在子类中补充打印，格式参照这里即可
+        gotoxy(43, 10);
+        cout << "inbox";
+        gotoxy(43, 12);
+        cout << "outbox";
+
+        for (int i = 1; i < 10; i++) {
+            gotoxy(72, 8 + i);
+            cout << '|';
+            gotoxy(93, 8 + i);
+            cout << '|';
+        }
+        gotoxy(72, 8);
+        cout << "+--------------------+";
+        gotoxy(73, 9);
+        cout << "帮助：";
+        gotoxy(73, 10);
+        cout << "第0行输入一个数字n";
+        gotoxy(73, 11);
+        cout << "表示指令总数为n";
+        gotoxy(73, 12);
+        cout << "接下来n行输入n条指令";
+        gotoxy(73, 13);
+        cout << "请以小写字母输入";
+        gotoxy(73, 14);
+        cout << "--------------------";
+        gotoxy(73, 15);
+        cout << "游戏结果:";
+        gotoxy(72, 18);
+        cout << "+--------------------+";
+
+        gotoxy(55, 7);
+        cout << "你的代码:";
+        gotoxy(55, 8);
+        cout << "=====CODE=====";
+        gotoxy(57, 9);
+        cout << "0 ";
+        /*gotoxy()*/
+    }
+    virtual ~base_task() {};
+
+public:
+    int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
+};
+
+class task01 : virtual public base_task
+{
+public:
+    int doInstructs(int n, vector<string>& instructs, vector<char>& inbox, vector<char>& outbox) {//操作执行
+        char on_hand = 'X';
         for (int i = 1; i <= n; i++) {
             gotoxy(55, 9 + i);
             cout << "->";
-            if (instructs[i-1] == "inbox") {
+            if (instructs[i - 1] == "inbox") {
                 if (inbox.size() == 0) return i;//防止访问越界
-                on_hand = instructInbox(on_hand,inbox);
-                
+                on_hand = instructInbox(on_hand, inbox);
+
             }
-            else if (instructs[i-1] == "outbox") {
+            else if (instructs[i - 1] == "outbox") {
                 if (on_hand < '0' || on_hand>'9') return i;
                 else {
-                    on_hand=instructOutbox(on_hand, outbox);
+                    on_hand = instructOutbox(on_hand, outbox);
                 }
             }
             else {
@@ -222,7 +300,7 @@ public:
     {
         printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
-        next:
+    next:
         system("cls");
         srand(time(0));
         char num[3];
@@ -241,13 +319,13 @@ public:
         cout << "可用空地数:0" << endl;
         cout << "可用指令集:inbox,outbox" << endl;
         printScreen(inbox, outbox);
-        
+
         int n;//输入的操作数目
         cin >> n;
-        getInstructs( n, instructs);
-        int error_on=doInstructs(n, instructs, inbox, outbox);
+        getInstructs(n, instructs);
+        int error_on = doInstructs(n, instructs, inbox, outbox);
 
-        if (error_on != 0||outbox.size()!=3) {//编译错误，程序没跑完或者outbox中数不为3个
+        if (error_on != 0 || outbox.size() != 3) {//编译错误，程序没跑完或者outbox中数不为3个
             gotoxy(82, 15);
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
@@ -296,86 +374,9 @@ public:
         system("cls"); // 判断是否成功，到main函数实现
     }
 
-    void printScreen(vector<char>& inbox, vector<char>& outbox) {//打印游戏界面
-        printInbox(inbox);
+    
 
-        showRobot(0, 10, '0');
-
-        printOutbox(outbox);
-
-
-        for (int i = 0; i < 20; i++) {
-            gotoxy(41, 8 + i);
-            cout << '|';
-            gotoxy(53, 8 + i);
-            cout << '|';
-        }
-
-        gotoxy(43, 8);
-        cout << "可用代码";
-        gotoxy(43, 10);
-        cout << "inbox";
-        gotoxy(43, 12);
-        cout << "outbox";
-
-        for (int i = 1; i < 10; i++) {
-            gotoxy(72, 8 + i);
-            cout << '|';
-            gotoxy(93, 8 + i);
-            cout << '|';
-        }
-        gotoxy(72, 8);
-        cout << "+--------------------+";
-        gotoxy(73, 9);
-        cout << "帮助：" ;
-        gotoxy(73, 10);
-        cout << "第0行输入一个数字n";
-        gotoxy(73, 11);
-        cout << "表示指令总数为n";
-        gotoxy(73, 12);
-        cout << "接下来n行输入n条指令";
-        gotoxy(73, 13);
-        cout << "请以小写字母输入";
-        gotoxy(73, 14);
-        cout << "--------------------";
-        gotoxy(73, 15);
-        cout << "游戏结果:";
-        gotoxy(72, 18);
-        cout << "+--------------------+";
-
-        gotoxy(55, 7);
-        cout << "你的代码:";
-        gotoxy(55, 8);
-        cout << "=====CODE=====";
-        gotoxy(57, 9);
-        cout << "0 ";
-        /*gotoxy()*/
-    }
-
-    void printInbox(vector<char>& inbox) {//打印inbox
-        gotoxy(0, 8);
-        cout << "Inbox" << endl << endl;
-        int inbox_size = inbox.size();
-        for (int i = 0; i < inbox_size; i++) {
-            showBlock(inbox[i], 0, 10 + i * 3);
-        }
-        for (int i = inbox_size; i < 3; i++) {
-            showBlock('X', 0, 10 + i * 3);
-        }
-
-    }
-    void printOutbox(vector<char>& outbox) {//打印outbox
-        gotoxy(34, 8);
-        cout << "Outbox";
-        int outbox_size = outbox.size();
-        for (int i = 0; i < outbox_size; i++) {
-            showBlock(outbox[i], 34, 10 + i * 3);
-        }
-
-        for (int i = outbox_size; i < 3; i++) {
-            showBlock('X', 34, 10 + i * 3);
-        }
-    }
+    
 };
 
 class task02 : virtual public base_task
@@ -502,7 +503,7 @@ int main()
         fs.close();
         ifstream rfs;
         rfs.open("PlayProgress.txt", ios::in);
-        highest_level = rfs.get() - 47;
+        highest_level = rfs.get() - 48;
         rfs.close();
     }
     printf_yellow("Human Resource Machine\n");
@@ -523,6 +524,7 @@ int main()
                 base01->recordGame();
                 base01->dotask();
                 base01->updateHighest_level();
+                base01->recordGame();
                 is_continue = base01->continueToPlay();
                 if (base01 != NULL)
                 {
@@ -534,9 +536,9 @@ int main()
             case 2:
             {
                 base_task* base02 = new task02;
-                base02->recordGame();
                 base02->dotask();
                 base02->updateHighest_level();
+                base02->recordGame();
                 is_continue = base02->continueToPlay();
                 if (base02 != NULL)
                 {
@@ -548,9 +550,9 @@ int main()
             case 3:
             {
                 base_task* base03 = new task03;
-                base03->recordGame();
                 base03->dotask();
                 base03->updateHighest_level();
+                base03->recordGame();
                 is_continue = base03->continueToPlay();
                 if (base03 != NULL)
                 {
@@ -562,9 +564,9 @@ int main()
             case 4:
             {
                 base_task* base04 = new task04;
-                base04->recordGame();
                 base04->dotask();
                 base04->updateHighest_level();
+                base04->recordGame();
                 is_continue = base04->continueToPlay();
                 if (base04 != NULL)
                 {

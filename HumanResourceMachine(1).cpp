@@ -78,16 +78,27 @@ public:
             return continueToPlay();//输入错误，重新执行当前函数
         }
     }
-    void showBlock(char num, int x1, int y1)//实现在指定位置显示积木块的功能
+    void showBlock(int num, int x1, int y1)//实现在指定位置显示积木块的功能
     {
         gotoxy(x1, y1);
         cout << "+---+";
         gotoxy(x1, y1 + 1);
-        cout << "| " << num << " |";
+        if (num / 10 == 0) cout << "| " << num << " |";
+        else if (num / 100 == 0) cout << "| " << num << "|";
+        else cout << "|" << num << "|";
         gotoxy(x1, y1 + 2);
         cout << "+---+";
     }
-    void showRobot(bool carry, int x1, char carry_num)//
+    void showXBlock(char x, int x1, int y1)//实现在指定位置显示积木块的功能
+    {
+        gotoxy(x1, y1);
+        cout << "+---+";
+        gotoxy(x1, y1 + 1);
+        cout << "| " << x << " |";
+        gotoxy(x1, y1 + 2);
+        cout << "+---+";
+    }
+    void showRobot(bool carry, int x1, int carry_num)//
     {
         for (int i = 10; i <= 18; i++) {
             for (int j = x1 + 5; j < 34; j++) {
@@ -101,7 +112,7 @@ public:
                 cout << ' ';
             }
         }//用空格覆盖机器人，消除机器人行走拖尾
-        
+
         if (carry) {//扛着东西  
             showBlock(carry_num, x1, 10);
             gotoxy(x1, 13);
@@ -136,7 +147,7 @@ public:
             instructs.push_back(input);
         }
     }
-    void printInbox(vector<char>& inbox) {//打印inbox
+    void printInbox(vector<int>& inbox) {//打印inbox
         gotoxy(0, 8);
         cout << "Inbox" << endl << endl;
         int inbox_size = inbox.size();
@@ -144,11 +155,11 @@ public:
             showBlock(inbox[i], 0, 10 + i * 3);
         }
         for (int i = inbox_size; i < 4; i++) {//这里inbox数量可以改变
-            showBlock('X', 0, 10 + i * 3);
+            showXBlock('X', 0, 10 + i * 3);
         }
 
     }
-    void printOutbox(vector<char>& outbox) {//打印outbox
+    void printOutbox(vector<int>& outbox) {//打印outbox
         gotoxy(34, 8);
         cout << "Outbox";
         int outbox_size = outbox.size();
@@ -157,14 +168,14 @@ public:
         }
 
         for (int i = outbox_size; i < 4; i++) {//这里outbox数量可以改变
-            showBlock('X', 34, 10 + i * 3);
+            showXBlock('X', 34, 10 + i * 3);
         }
     }
-    char instructInbox(char onhand, vector<char>& inbox) {//inbox操作
+    int instructInbox(int onhand, vector<int>& inbox) {//inbox操作
 
         Sleep(500);
         for (int i = 9; i >= 6; i--) {
-            showRobot(0, i, '0');
+            showRobot(0, i, 0);
             Sleep(500);
         }
         onhand = inbox[0];  //onhand变量记录机器人搬的东西
@@ -186,15 +197,15 @@ public:
         }
         return onhand;
     }
-    char instructOutbox(char onhand, vector<char>& outbox) {//outbox操作
+    int instructOutbox(int onhand, vector<int>& outbox) {//outbox操作
         Sleep(500);
         for (int i = 11; i <= 29; i++) {
             showRobot(1, i, onhand);
             Sleep(500);
         }
         outbox.push_back(onhand);
-        onhand = 'X';
-        showRobot(0, 29, 'X');
+        onhand = -1;
+        showRobot(0, 29, 0);
         printOutbox(outbox);
         for (int i = 0; i < 6; i++) {//去除箱子所在位置的内容
             gotoxy(29, 8 + i);
@@ -203,15 +214,15 @@ public:
         Sleep(500);
 
         for (int i = 28; i >= 10; i--) {
-            showRobot(0, i, 'X');
+            showRobot(0, i, 0);
             Sleep(500);
         }
         return onhand;
     }
-    void printScreen(vector<char>& inbox, vector<char>& outbox) {//打印游戏界面
+    void printScreen(vector<int>& inbox, vector<int>& outbox) {//打印游戏界面
         printInbox(inbox);
 
-        showRobot(0, 10, '0');
+        showRobot(0, 10, 0);
 
         printOutbox(outbox);
 
@@ -272,8 +283,8 @@ public:
 class task01 : virtual public base_task
 {
 public:
-    int doInstructs(int n, vector<string>& instructs, vector<char>& inbox, vector<char>& outbox) {//操作执行
-        char on_hand = 'X';
+    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox) {//操作执行
+        int on_hand = -1;
         for (int i = 1; i <= n; i++) {
             gotoxy(55, 9 + i);
             cout << "->";
@@ -283,7 +294,7 @@ public:
 
             }
             else if (instructs[i - 1] == "outbox") {
-                if (on_hand < '0' || on_hand>'9') return i;
+                if (on_hand < 0) return i;
                 else {
                     on_hand = instructOutbox(on_hand, outbox);
                 }
@@ -303,15 +314,15 @@ public:
     next:
         system("cls");
         srand(time(0));
-        char num[3];
-        num[0] = '0' + rand() % 10;
-        num[1] = '0' + rand() % 10;
-        num[2] = '0' + rand() % 10;
-        vector<char> inbox;
+        int num[3];
+        num[0] = rand() % 10;
+        num[1] = rand() % 10;
+        num[2] = rand() % 10;
+        vector<int> inbox;
         for (int i = 0; i < 3; i++) {
             inbox.push_back(num[i]);
         }
-        vector<char> outbox;
+        vector<int> outbox;
         vector<string> instructs;
         // 关卡内容
         cout << "欢迎新员工！这是你的第一天" << endl;
@@ -374,9 +385,9 @@ public:
         system("cls"); // 判断是否成功，到main函数实现
     }
 
-    
 
-    
+
+
 };
 
 class task02 : virtual public base_task

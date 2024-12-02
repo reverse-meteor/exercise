@@ -100,7 +100,19 @@ public:
     }
     void showRobot(bool carry, int x1, int carry_num)//
     {
-        for (int i = 10; i <= 18; i++) {
+        if (x1 > 6) {
+            for (int i = 10; i <= 18; i++) {
+                gotoxy(x1-1, i);
+                cout << ' ';
+            }
+        }
+        if (x1 < 34) {
+            for (int i = 10; i <= 18; i++) {
+                gotoxy(x1 +1, i);
+                cout << ' ';
+            }
+        }
+        /*for (int i = 10; i <= 18; i++) {
             for (int j = x1 + 5; j < 34; j++) {
                 gotoxy(j, i);
                 cout << ' ';
@@ -111,7 +123,7 @@ public:
                 gotoxy(j, i);
                 cout << ' ';
             }
-        }//用空格覆盖机器人，消除机器人行走拖尾
+        }*///用空格覆盖机器人，消除机器人行走拖尾
 
         if (carry) {//扛着东西  
             showBlock(carry_num, x1, 10);
@@ -154,7 +166,7 @@ public:
         for (int i = 0; i < inbox_size; i++) {
             showBlock(inbox[i], 0, 10 + i * 3);
         }
-        for (int i = inbox_size; i < 4; i++) {//这里inbox数量可以改变
+        for (int i = inbox_size; i < 6; i++) {//这里inbox数量可以改变
             showXBlock('X', 0, 10 + i * 3);
         }
 
@@ -163,11 +175,12 @@ public:
         gotoxy(34, 8);
         cout << "Outbox";
         int outbox_size = outbox.size();
-        for (int i = 0; i < outbox_size; i++) {
-            showBlock(outbox[i], 34, 10 + i * 3);
+        for (int i = 0; i< outbox_size; i++) {
+            showBlock(outbox[outbox_size-1-i], 34, 10 + i * 3);
+            
         }
 
-        for (int i = outbox_size; i < 4; i++) {//这里outbox数量可以改变
+        for (int i = outbox_size; i < 6; i++) {//这里outbox数量可以改变
             showXBlock('X', 34, 10 + i * 3);
         }
     }
@@ -274,6 +287,13 @@ public:
         cout << "0 ";
         /*gotoxy()*/
     }
+    void printSpace(int x) {
+        for (int i = 0; i < x; i++) {
+            showXBlock(' ',6+i*4, 20);
+            gotoxy(6 + i * 4 + 1, 21);
+            cout << i;
+        }
+    }
     virtual ~base_task() {};
 
 public:
@@ -284,7 +304,7 @@ class task01 : virtual public base_task
 {
 public:
     int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox) {//操作执行
-        int on_hand = -1;
+        int on_hand = 1000;
         for (int i = 1; i <= n; i++) {
             gotoxy(55, 9 + i);
             cout << "->";
@@ -311,7 +331,7 @@ public:
     {
         printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
-    next:
+    next_1:
         system("cls");
         srand(time(0));
         int num[3];
@@ -324,6 +344,7 @@ public:
         }
         vector<int> outbox;
         vector<string> instructs;
+        Sleep(100);
         // 关卡内容
         cout << "欢迎新员工！这是你的第一天" << endl;
         cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
@@ -331,7 +352,11 @@ public:
         cout << "可用指令集:inbox,outbox" << endl;
         printScreen(inbox, outbox);
 
-        int n;//输入的操作数目
+        //int *p;//输入的操作数目
+        //p = new int;
+        //cin >> *p;
+        //int n = *p;
+        int n;
         cin >> n;
         getInstructs(n, instructs);
         int error_on = doInstructs(n, instructs, inbox, outbox);
@@ -355,7 +380,8 @@ public:
                     }
                 }
             }
-            goto next;
+            //delete p;
+            goto next_1;
         }
 
         for (int i = 0; i < 3; i++) {//outbox有3个数时
@@ -373,7 +399,8 @@ public:
                         }
                     }
                 }
-                goto next;
+                //delete p;
+                goto next_1;
             }
         }
 
@@ -397,10 +424,32 @@ public:
     {
         printf_yellow("您当前游玩的关卡是: sub走廊");
         Sleep(2000);
+    next_1:
         system("cls");
-
+        srand(time(0));
+        int num[6];
+        for (int i = 0; i < 6; i++) {
+            num[i] = rand() % 10;
+        }
+        vector<int> inbox;
+        for (int i = 0; i < 6; i++) {
+            inbox.push_back(num[i]);
+        }
+        vector<int> outbox;
+        vector<string> instructs;
+        Sleep(100);
         // 关卡内容
-
+        cout << "这是你的第二天" << endl;
+        cout << "关卡信息:对于inbox中的没两个东西" << endl
+            <<"先把第1个减去第2个，并把结果放在outbox内"<<endl
+            <<"然后，把第2个减去第1个，再把结果放在outbox内，重复";
+        cout << "可用空地数:3" << endl;
+        cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
+        printScreen(inbox, outbox);
+        printSpace(3);
+        // 关卡内容
+        int n;
+        cin >> n;
         // if success
 
         printf_green("挑战成功！");

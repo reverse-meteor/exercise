@@ -7,21 +7,24 @@
 #include <ctime>
 #include <conio.h>
 #include <algorithm>
-
+//通关版用户名为：PlayProgress
 using namespace std;
 void printf_red(const char* s);
 void printf_green(const char* s);
-void printf_yellow(const char* s);
+void printf_yellow(const char* s); 
+void gotoxy(int x, int y);
 
 int highest_level = 0;
 string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
 string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jump if zero" };
+char skin[3][5][6];
+char robot[5][6];
+void skinPrepare(); 
 
 class base_task
 {
 public:
     
-
     int getNumFromInstruct(string instruct) {
         int size_instruct = instruct.size();
         int num = 0;
@@ -196,25 +199,15 @@ public:
             gotoxy(x1, 13);
             cout << "@   @";
         }
-
-        gotoxy(x1, 14);
-        cout << "-----";
-        gotoxy(x1, 15);
-        cout << "|@ @|";
-        gotoxy(x1, 16);
-        cout << "  +  " ;
-        gotoxy(x1, 17);
-        cout << "/   \\" ;
-        gotoxy(x1, 18);
-        cout << " | | " ;
+        for (int i = 0; i < 5; i++) {
+            gotoxy(x1, 14+i);
+            for (int j = 0; j < 5; j++) {
+                cout << robot[i][j];
+            }
+            
+        }
     }
-    void gotoxy(int x, int y) { //更改光标位置，实现在指定位置输出的功能
-        short m = short(x);
-        short n = short(y);
-        COORD pos = { m, n };
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleCursorPosition(hOut, pos);
-    }
+    
     void getInstructs(int n, vector<string>& instructs) {//vector容器存储用户输入的指令集
         string input;
         getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
@@ -548,7 +541,11 @@ public:
             gotoxy(59, 9 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
-                if (inbox.size() == 0) return i;//防止访问越界
+                if (inbox.size() == 0) {
+                    gotoxy(59, 9 + i);
+                    cout << "  ";
+                    return 0;
+                }//程序结束
                 if (carry == 1) {
                     for (int i = 0; i < 4; i++) {
                         gotoxy(10, 10 + i);
@@ -604,32 +601,29 @@ public:
                     carry = 1;
                 }
             }
-            
+            else if (checkJump_if_zero(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= n || num <= 0 || carry == 0) return i;
+                else {
+                    if ( on_hand == 0) {
+                        Sleep(200);
+                        gotoxy(59, 9 + i);
+                        cout << "  ";
+                        i = num - 1;
+                    }
+                }
+            }
             else if (checkJump(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
                 if (num >= n || num <= 0) return i;
                 else {
-                    if (outbox.size() < 8) {
-                        gotoxy(59, 9 + i);
-                        cout << "  ";
-                        i = num - 1;
-                    }
-                    else i = n;
+                    Sleep(200);
+                    gotoxy(59, 9 + i);
+                    cout << "  ";
+                    i = num - 1;
                 }
             }
-            else if (checkJump_if_zero(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= n || num <= 0) return i;
-                else {
-                    if (outbox.size() <= 8 && on_hand == 0) {
-                        gotoxy(59, 9 + i);
-                        cout << "  ";
-                        i = num - 1;
-                    }
-                    else if (outbox.size() < 8 );
-                    else i = n;
-                }
-            }
+            
             else {
                 return i;
             }
@@ -664,7 +658,7 @@ public:
             << "然后，把第2个减去第1个，再把结果放在outbox内，重复";
         cout << "可用空地数:3" << endl;
         cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
-        cout << "请在copyfrom,copyto,add,sub,jump,jump if zero后加上一个数字";
+        cout << "请在copyfrom,copyto,add,sub后加上一个数字表示空地n,jump,jump if zero后加上一个数字表示第n行代码";
         printSpace(3);
         for (int i = 0; i < 6; i++) {
             gotoxy(43, 14 + i * 2);
@@ -745,7 +739,7 @@ public:
         gotoxy(89, 15);
         printf_green("Success");
         Sleep(2000);
-        finish_level = 1;
+        finish_level = 2;
         system("cls");
     }
 };
@@ -753,16 +747,211 @@ public:
 class task03 : virtual public base_task
 {
 public:
+    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox, int space[]) {//操作执行
+        int on_hand = 1000;
+        bool carry = 0;
+        for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
+            gotoxy(59, 9 + i);
+            cout << "->";
+            if (instructs[i - 1] == "inbox") {
+                if (inbox.size() == 0) {
+                    gotoxy(59, 9 + i);
+                    cout << "  ";
+                    return 0;
+                }//程序结束
+                if (carry == 1) {
+                    for (int i = 0; i < 4; i++) {
+                        gotoxy(10, 10 + i);
+                        cout << "     ";
+                    }
+                }
+                on_hand = instructInbox(on_hand, inbox);
+                carry = 1;
+
+            }
+            else if (instructs[i - 1] == "outbox") {
+                if (carry == 0) return i;
+                else {
+                    on_hand = instructOutbox(on_hand, outbox);
+                    carry = 0;
+                }
+            }
+            else if (checkCopyfrom(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= 3 || space[num] == -1000) return i;//-1000表示它是空的
+                else {
+                    //on_hand放到编号为num的空地上
+                    on_hand = instructCopyfrom(carry, on_hand, num, space);
+                    carry = 1;
+                }
+            }
+            else if (checkCopyto(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= 3) return i;
+                else if (carry == 0) return i;
+                else {
+                    //on_hand放到编号为num的空地上
+                    on_hand = instructCopyto(carry, on_hand, num, space);
+                    carry = 1;
+                }
+            }
+            else if (checkAdd(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= 3 || carry == 0 || space[num] == -1000) return i;
+                else {
+                    //on_hand加上编号为num的空地上的数
+                    on_hand = instructAdd(carry, on_hand, num, space);
+                    carry = 1;
+                }
+            }
+            else if (checkSub(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= 3 || carry == 0 || space[num] == -1000) return i;
+                else if (carry == 0) return i;
+                else {
+                    //on_hand减去编号为num的空地上的数
+                    on_hand = instructSub(carry, on_hand, num, space);
+                    carry = 1;
+                }
+            }
+            else if (checkJump_if_zero(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= n || num <= 0 || carry == 0) return i;
+                else {
+                    if (on_hand == 0) {
+                        Sleep(200);
+                        gotoxy(59, 9 + i);
+                        cout << "  ";
+                        i = num - 1;
+                    }
+                }
+            }
+            else if (checkJump(instructs[i - 1])) {
+                int num = getNumFromInstruct(instructs[i - 1]);
+                if (num >= n || num <= 0) return i;
+                else {
+                    Sleep(200);
+                    gotoxy(59, 9 + i);
+                    cout << "  ";
+                    i = num - 1;
+                }
+            }
+            
+            else {
+                return i;
+            }
+            gotoxy(59, 9 + i);
+            cout << "  ";
+        }
+        return 0;
+    }
     void dotask()
     {
         printf_yellow("您当前游玩的关卡是: 平等化室");
         Sleep(2000);
+    next_3:
         system("cls");
+        int equal_total = 0;
+        srand(time(0));
+        int num[8];
+        vector<int> answer;
+        for (int i = 0; i < 8; i+=2) {
+            num[i] = rand() % 10;
+            if (rand() % 2) {
+                num[i + 1] = num[i];
+                answer.push_back(num[i]);
+                equal_total++;
+            }
+            else {
+                num[i+1] = rand() % 10;
+                if (num[i + 1] == num[i]) {
+                    answer.push_back(num[i]);
+                    equal_total++;
+                }
+            }
+            if (i == 6 && equal_total == 0) {
+                num[i + 1] = num[i];
+                answer.push_back(num[i]);
+                equal_total++;
+            }
+        }
+        vector<int> inbox;
+        for (int i = 0; i < 8; i++) {
+            inbox.push_back(num[i]);
+        }
+        vector<int> outbox;
+        vector<string> instructs;
+        int space[3] = { -1000,-1000,-1000 };
+        Sleep(100);
+        // 关卡内容
+        cout << "这是你的第三天" << endl;
+        cout << "关卡信息:对于inbox中的两个东西" << endl
+            << "如果相等，把1个放到outbox里" << endl
+            << "不相等的扔掉，重复";
+        cout << "可用空地数:3" << endl;
+        cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
+        cout << "请在copyfrom,copyto,add,sub后加上一个数字表示空地n,jump,jump if zero后加上一个数字表示第n行代码";
+        printSpace(3);
+        for (int i = 0; i < 6; i++) {
+            gotoxy(43, 14 + i * 2);
+            cout << all_instructs[i];
+        }//打印新的可用代码
 
+        printScreen(inbox, outbox);
+
+        // 关卡内容
+        int n;
+        scanf("%d", &n);
+        getInstructs(n, instructs);
+        // if success
+
+        int error_on = doInstructs(n, instructs, inbox, outbox, space);
+
+        if (error_on != 0 || outbox.size() != equal_total) {//编译错误，程序没跑完或者outbox中数不为相等的数的个数
+            gotoxy(89, 15);
+            if (error_on != 0) {//编译错误，程序没跑完
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line" << error_on;
+            }
+            else if (outbox.size() != equal_total) printf_red("Fail");//outbox中数不为相等的数的个数,结果一定错误
+            gotoxy(80, 17);
+            cout << "按下\"Enter\"重新开始";
+            bool waitForEnter = 1;
+            while (waitForEnter) {
+                if (_kbhit()) {
+                    char ch = _getch();
+                    if (ch == '\r') {
+                        waitForEnter = 0;
+                    }
+                }
+            }
+            goto next_3;
+        }
+
+        for (int i = 0; i < equal_total; i++) {//outbox有equal_total个数时
+            if (outbox[i] != answer[i]) {
+                gotoxy(89, 15);
+                printf_red("Fail");
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                    goto next_3;
+            }
+        }
+        
         // 关卡内容
 
         // if success
-
+        gotoxy(89, 15);
         printf_green("挑战成功！");
         Sleep(2000);
         finish_level = 3;
@@ -790,18 +979,26 @@ public:
     }
 };
 
-void showMenu()
+void showMenu(string name)
 {
     if (highest_level != 0)
     {
-        cout << "您当前游玩的最高纪录为:第" << highest_level << "关" << endl;
+        gotoxy(5, 8);
+        cout << "欢迎回归" << name;
+        gotoxy(5, 9);
+        cout << "您当前游玩的最高纪录为:第" << highest_level << "关" ;
     }
     else
     {
-        cout << "未找到您的游玩记录,请从第一关开始游玩" << endl;
+        gotoxy(5, 8);
+        cout << "未找到您的游玩记录,看起来是新来的帕鲁";
+        gotoxy(5, 9);
+        cout << "请从第一关开始游玩";
+
     }
-    cout << "请选择您想要挑战的关卡" << endl;
-    printf_green("+-----+-----+-----+-----+\n");
+    gotoxy(5, 10);
+    printf_green("+-----+-----+-----+-----+");
+    gotoxy(5, 11);
     printf_green("|  ");
     if (0 <= highest_level) printf_yellow("1  ");
     else printf_red("1  ");
@@ -815,7 +1012,12 @@ void showMenu()
     if (3 <= highest_level) printf_yellow("4  ");
     else printf_red("4  ");
     printf_green("|  ");
-    printf_green("\n+-----+-----+-----+-----+\n");
+    gotoxy(5, 12);
+    printf_green("+-----+-----+-----+-----+");
+    gotoxy(5, 14);
+    cout << "注:黄色为可以挑战，红色不可挑战，只需输入1或2或3或4！" << endl;
+    gotoxy(5, 13);
+    cout << "请选择您想要挑战的关卡:" ;
 }
 
 int chooseLevel()
@@ -842,8 +1044,19 @@ int chooseLevel()
 
 int main()
 {
+    gotoxy(40,10);
+    printf_yellow("Human Resource Machine by 何雨宸和陈家睦\n");
+    Sleep(2000);
+    system("cls");
+    string name;
+    gotoxy(30, 12);
+    cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
+    gotoxy(30, 10);
+    cout << "请输入您的玩家信息：";
+    cin >> name;
+    string progress = name + ".txt";
     fstream fs;
-    fs.open("PlayProgress.txt", ios::in);
+    fs.open(progress, ios::in);
     if (fs.get() == -1)
     {
         highest_level = fs.get() + 1;
@@ -853,17 +1066,83 @@ int main()
     {
         fs.close();
         ifstream rfs;
-        rfs.open("PlayProgress.txt", ios::in);
+        rfs.open(progress, ios::in);
         highest_level = rfs.get() - 48;
         rfs.close();
     }
-    printf_yellow("Human Resource Machine\n");
-    cout << "\n======================================================\n\n";
+    system("cls");
+    skinPrepare();
+    
+    gotoxy(10, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(10, 6+i);
+        cout << "|";
+        gotoxy(21, 6 + i);
+        cout << "|";
+    }
+    gotoxy(10, 16);
+    cout << "+----------+";
+    gotoxy(10, 17);
+    cout << "皮肤1：";
+    gotoxy(10, 18);
+    cout << "原皮罢了";
+    gotoxy(30, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(30, 6 + i);
+        cout << "|";
+        gotoxy(41, 6 + i);
+        cout << "|";
+    }
+    gotoxy(30, 16);
+    cout << "+----------+";
+    gotoxy(30, 17);
+    cout << "皮肤2：";
+    gotoxy(30, 18);
+    cout << "Mamba back!";
+    gotoxy(50, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(50, 6 + i);
+        cout << "|";
+        gotoxy(61, 6 + i);
+        cout << "|";
+    }
+    gotoxy(50, 16);
+    cout << "+----------+";
+    gotoxy(50, 17);
+    cout << "皮肤3：";
+    gotoxy(50, 18);
+    cout << "比原皮还原皮";
+    for (int i = 0; i < 3; i++) {
+         for (int j = 0; j < 5; j++) {
+             gotoxy(14 + 20 * i,8+j);
+             for (int k = 0; k < 5; k++) {
+                 printf("%c", skin[i][j][k]);
+             }
+   
+         }
+    }
+    int skin_num = 1;
+    gotoxy(30, 22);
+    cout << "请输入1,2,3";
+    gotoxy(30, 20);
+    cout << "请选择您的皮肤：";
+    cin >> skin_num;
+
+    strcpy(robot[0], skin[skin_num-1][0]);
+    strcpy(robot[1], skin[skin_num-1][1]);
+    strcpy(robot[2], skin[skin_num-1][2]);
+    strcpy(robot[3], skin[skin_num-1][3]);
+    strcpy(robot[4], skin[skin_num-1][4]);
+
+    system("cls");
     bool is_continue = true;
     while (is_continue)
     {
     a:
-        showMenu();
+        showMenu(name);
         int user_choice = chooseLevel(); // user_choice==chosen_level
         if (user_choice != -1)
         {
@@ -953,4 +1232,34 @@ void printf_green(const char* s)
 void printf_yellow(const char* s)
 {
     printf("\033[0m\033[1;33m%s\033[0m", s);
+}
+
+void gotoxy(int x, int y) { //更改光标位置，实现在指定位置输出的功能
+    short m = short(x);
+    short n = short(y);
+    COORD pos = { m, n };
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hOut, pos);
+}
+
+void skinPrepare(){
+
+    strcpy(skin[0][0], "----- ");
+    strcpy(skin[0][1], "|@ @| ");
+    strcpy(skin[0][2], "  +   ");
+    strcpy(skin[0][3], "/   \\ ");
+    strcpy(skin[0][4], " | |  ");
+
+    strcpy(skin[1][0], " +-+  ");
+    strcpy(skin[1][1], " |_|  ");
+    strcpy(skin[1][2], "/2|4\\ ");
+    strcpy(skin[1][3], "  | @ ");
+    strcpy(skin[1][4], " / \\  ");
+
+    strcpy(skin[2][0], "  @   ");
+    strcpy(skin[2][1], "--*-- ");
+    strcpy(skin[2][2], "  |   ");
+    strcpy(skin[2][3], "  *   ");
+    strcpy(skin[2][4], " / \\  ");
+
 }

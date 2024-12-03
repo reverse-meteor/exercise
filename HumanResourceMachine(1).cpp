@@ -415,339 +415,7 @@ public:
             cout << i;
         }
     }
-    virtual ~base_task() {};
-
-public:
-    int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
-};
-
-class task01 : virtual public base_task
-{
-public:
-    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox) {//操作执行
-        int on_hand = 1000;
-        bool carry = 0;
-        for (int i = 1; i <= n; i++) {
-            gotoxy(59, 9 + i);
-            cout << "->";
-            if (instructs[i - 1] == "inbox") {
-                if (inbox.size() == 0) return i;//防止访问越界
-                on_hand = instructInbox(on_hand, inbox);
-                carry = 1;
-            }
-            else if (instructs[i - 1] == "outbox") {
-                if (carry==0) return i;
-                else {
-                    on_hand = instructOutbox(on_hand, outbox);
-                    carry = 0;
-                }
-            }
-            else {
-                return i;
-            }
-            gotoxy(59, 9 + i);
-            cout << "  ";
-        }
-        return 0;
-    }
-    void dotask()
-    {
-        printf_yellow("您当前游玩的关卡是: 收发室");
-        Sleep(2000);
-    next_1:
-        system("cls");
-        srand(time(0));
-        int num[3];
-        num[0] = rand() % 40;
-        num[1] = rand() % 40;
-        num[2] = rand() % 40;
-        vector<int> inbox;
-        for (int i = 0; i < 3; i++) {
-            inbox.push_back(num[i]);
-        }
-        vector<int> outbox;
-        vector<string> instructs;
-        Sleep(100);
-        // 关卡内容
-        cout << "欢迎新员工！这是你的第一天" << endl;
-        cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
-        cout << "可用空地数:0" << endl;
-        cout << "可用指令集:inbox,outbox" << endl;
-        printScreen(inbox, outbox);
-
-        int n;
-        scanf("%d",&n);
-        getInstructs(n, instructs);
-        int error_on = doInstructs(n, instructs, inbox, outbox);
-
-        if (error_on != 0 || outbox.size() != 3) {//编译错误，程序没跑完或者outbox中数不为3个
-            gotoxy(89, 15);
-            if (error_on != 0) {//编译错误，程序没跑完
-                printf_red("Error");
-                gotoxy(80, 16);
-                cout << "on line" << error_on;
-            }
-            else if (outbox.size() < 3) printf_red("Fail");//outbox中数不为3个,结果一定错误
-            gotoxy(80, 17);
-            cout << "按下\"Enter\"重新开始";
-            bool waitForEnter = 1;
-            while (waitForEnter) {
-                if (_kbhit()) {
-                    char ch = _getch();
-                    if (ch == '\r') {
-                        waitForEnter = 0;
-                    }
-                }
-            }
-            //delete p;
-            goto next_1;
-        }
-
-        for (int i = 0; i < 3; i++) {//outbox有3个数时
-            if (outbox[i] != num[i]) {
-                gotoxy(89, 15);
-                printf_red("Fail");
-                gotoxy(80, 17);
-                cout << "按下\"Enter\"重新开始";
-                bool waitForEnter = 1;
-                while (waitForEnter) {
-                    if (_kbhit()) {
-                        char ch = _getch();
-                        if (ch == '\r') {
-                            waitForEnter = 0;
-                        }
-                    }
-                }
-                //delete p;
-                goto next_1;
-            }
-        }
-        // if success
-        gotoxy(89, 15);
-        printf_green("Success");
-        Sleep(2000);
-        finish_level = 1;
-        system("cls"); 
-    }
-};
-
-class task02 : virtual public base_task
-{
-public:
-    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox,int space[]) {//操作执行
-        int on_hand = 1000;
-        bool carry = 0;
-        for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
-            gotoxy(59, 9 + i);
-            cout << "->";
-            if (instructs[i - 1] == "inbox") {
-                if (inbox.size() == 0) {
-                    gotoxy(59, 9 + i);
-                    cout << "  ";
-                    return 0;
-                }//程序结束
-                if (carry == 1) {
-                    for (int i = 0; i < 4; i++) {
-                        gotoxy(10, 10 + i);
-                        cout << "     ";
-                    }
-                }
-                on_hand = instructInbox(on_hand, inbox);
-                carry = 1;
-
-            }
-            else if (instructs[i - 1] == "outbox") {
-                if (carry==0) return i;
-                else {
-                    on_hand = instructOutbox(on_hand, outbox);
-                    carry = 0;
-                }
-            }
-            else if (checkCopyfrom(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3||space[num]==-1000) return i;//-1000表示它是空的
-                else {
-                    //on_hand放到编号为num的空地上
-                    on_hand=instructCopyfrom(carry, on_hand, num, space);
-                    carry = 1;
-                }
-            }
-            else if (checkCopyto(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3) return i;
-                else if (carry == 0) return i;
-                else {
-                    //on_hand放到编号为num的空地上
-                    on_hand=instructCopyto(carry, on_hand, num, space);
-                    carry = 1;
-                }
-            }
-            else if (checkAdd(instructs[i - 1] )) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3 || carry == 0|| space[num] == -1000) return i;
-                else {
-                    //on_hand加上编号为num的空地上的数
-                    on_hand = instructAdd(carry, on_hand, num, space);
-                    carry = 1;
-                }
-            }
-            else if (checkSub(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3 || carry == 0 || space[num] == -1000) return i;
-                else if (carry == 0) return i;
-                else {
-                    //on_hand减去编号为num的空地上的数
-                    on_hand = instructSub(carry, on_hand, num, space);
-                    carry = 1;
-                }
-            }
-            else if (checkJump_if_zero(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= n || num <= 0 || carry == 0) return i;
-                else {
-                    if ( on_hand == 0) {
-                        Sleep(200);
-                        gotoxy(59, 9 + i);
-                        cout << "  ";
-                        i = num - 1;
-                    }
-                }
-            }
-            else if (checkJump(instructs[i - 1])) {
-                int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= n || num <= 0) return i;
-                else {
-                    Sleep(200);
-                    gotoxy(59, 9 + i);
-                    cout << "  ";
-                    i = num - 1;
-                }
-            }
-            
-            else {
-                return i;
-            }
-            gotoxy(59, 9 + i);
-            cout << "  ";
-        }
-        return 0;
-    }
-    void dotask()
-    {
-        printf_yellow("您当前游玩的关卡是: sub走廊");
-        Sleep(2000);
-    next_2:
-        system("cls");
-        srand(time(0));
-        int num[8];
-        for (int i = 0; i < 8; i++) {
-            num[i] = rand() % 40-20;
-        }
-        vector<int> inbox;
-        for (int i = 0; i < 8; i++) {
-            inbox.push_back(num[i]);
-        }
-        vector<int> outbox;
-        vector<string> instructs;
-        int space[3] = { -1000,-1000,-1000 };
-        Sleep(100);
-        // 关卡内容
-        cout << "这是你的第二天" << endl;
-        cout << "关卡信息:对于inbox中的两个东西" << endl
-            << "先把第1个减去第2个，并把结果放在outbox内" << endl
-            << "然后，把第2个减去第1个，再把结果放在outbox内，重复";
-        cout << "可用空地数:3" << endl;
-        cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
-        cout << "请在copyfrom,copyto,add,sub后加上一个数字表示空地n,jump,jump if zero后加上一个数字表示第n行代码";
-        printSpace(3);
-        for (int i = 0; i < 6; i++) {
-            gotoxy(43, 14 + i * 2);
-            cout << all_instructs[i];
-        }//打印新的可用代码
-
-        printScreen(inbox, outbox);
-        
-        // 关卡内容
-        int n;
-        scanf("%d", &n);
-        getInstructs(n, instructs);
-        // if success
-
-        int error_on = doInstructs(n, instructs, inbox, outbox, space);
-
-        if (error_on != 0 || outbox.size() != 8) {//编译错误，程序没跑完或者outbox中数不为8个
-            gotoxy(89, 15);
-            if (error_on != 0) {//编译错误，程序没跑完
-                printf_red("Error");
-                gotoxy(80, 16);
-                cout << "on line" << error_on;
-            }
-            else if (outbox.size() < 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
-            gotoxy(80, 17);
-            cout << "按下\"Enter\"重新开始";
-            bool waitForEnter = 1;
-            while (waitForEnter) {
-                if (_kbhit()) {
-                    char ch = _getch();
-                    if (ch == '\r') {
-                        waitForEnter = 0;
-                    }
-                }
-            }
-            goto next_2;
-        }
-
-        for (int i = 0; i < 8; i++) {//outbox有8个数时
-            if (i % 2 == 0) {//第0，2，4，6个数，为num[i]-num[i+1]
-                if (outbox[i] != num[i]-num[i+1]) {
-                    gotoxy(89, 15);
-                    printf_red("Fail");
-                    gotoxy(80, 17);
-                    cout << "按下\"Enter\"重新开始";
-                    bool waitForEnter = 1;
-                    while (waitForEnter) {
-                        if (_kbhit()) {
-                            char ch = _getch();
-                            if (ch == '\r') {
-                                waitForEnter = 0;
-                            }
-                        }
-                    }
-                    goto next_2;
-                }
-            }
-            else {//第1，3，5，7个数，为num[i]-num[i-1]
-                if (outbox[i] != num[i] - num[i-1]) {
-                    gotoxy(89, 15);
-                    printf_red("Fail");
-                    gotoxy(80, 17);
-                    cout << "按下\"Enter\"重新开始";
-                    bool waitForEnter = 1;
-                    while (waitForEnter) {
-                        if (_kbhit()) {
-                            char ch = _getch();
-                            if (ch == '\r') {
-                                waitForEnter = 0;
-                            }
-                        }
-                    }
-                    goto next_2;
-                }
-            }            
-        }
-        // if success
-        gotoxy(89, 15);
-        printf_green("Success");
-        Sleep(2000);
-        finish_level = 2;
-        system("cls");
-    }
-};
-
-class task03 : virtual public base_task
-{
-public:
-    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox, int space[]) {//操作执行
+    int doInstructs_2_3(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox, int space[]) {//操作执行
         int on_hand = 1000;
         bool carry = 0;
         for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
@@ -836,7 +504,7 @@ public:
                     i = num - 1;
                 }
             }
-            
+
             else {
                 return i;
             }
@@ -845,6 +513,289 @@ public:
         }
         return 0;
     }
+    virtual ~base_task() {};
+
+public:
+    int finish_level = 0; // 记录当前关卡方便与highest_level进行比较
+};
+
+class task01 : virtual public base_task
+{
+public:
+    int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox) {//操作执行
+        int on_hand = 1000;
+        bool carry = 0;
+        for (int i = 1; i <= n; i++) {
+            gotoxy(59, 9 + i);
+            cout << "->";
+            if (instructs[i - 1] == "inbox") {
+                if (inbox.size() == 0) return i;//防止访问越界
+                on_hand = instructInbox(on_hand, inbox);
+                carry = 1;
+            }
+            else if (instructs[i - 1] == "outbox") {
+                if (carry==0) return i;
+                else {
+                    on_hand = instructOutbox(on_hand, outbox);
+                    carry = 0;
+                }
+            }
+            else {
+                return i;
+            }
+            gotoxy(59, 9 + i);
+            cout << "  ";
+        }
+        return 0;
+    }
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: 收发室");
+        Sleep(2000);
+    next_1:
+        system("cls");
+        srand(time(0));
+        int num[3];
+        num[0] = rand() % 40;
+        num[1] = rand() % 40;
+        num[2] = rand() % 40;
+        vector<int> inbox;
+        for (int i = 0; i < 3; i++) {
+            inbox.push_back(num[i]);
+        }
+        vector<int> outbox;
+        vector<string> instructs;
+        Sleep(100);
+        // 关卡内容
+        cout << "欢迎新员工！这是你的第一天" << endl;
+        cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
+        cout << "可用空地数:0" << endl;
+        cout << "可用指令集:inbox,outbox" << endl;
+        printScreen(inbox, outbox);
+        string n_string;
+        int n=0;
+        cin >> n_string;
+        int weishu = 1;
+        for (int i = n_string.size()-1; i >=0 ; i--) {
+            if (n_string[i] < '0' || n_string[i] > '9') {
+                gotoxy(89, 15);
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line 0" ;
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                //delete p;
+                goto next_1;
+            }
+            n += (n_string[i] - '0') * weishu;
+            weishu *= 10;
+        }
+        getInstructs(n, instructs);
+        int error_on = doInstructs(n, instructs, inbox, outbox);
+
+        if (error_on != 0 || outbox.size() != 3) {//编译错误，程序没跑完或者outbox中数不为3个
+            gotoxy(89, 15);
+            if (error_on != 0) {//编译错误，程序没跑完
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line " << error_on;
+            }
+            else if (outbox.size() < 3) printf_red("Fail");//outbox中数不为3个,结果一定错误
+            gotoxy(80, 17);
+            cout << "按下\"Enter\"重新开始";
+            bool waitForEnter = 1;
+            while (waitForEnter) {
+                if (_kbhit()) {
+                    char ch = _getch();
+                    if (ch == '\r') {
+                        waitForEnter = 0;
+                    }
+                }
+            }
+            //delete p;
+            goto next_1;
+        }
+
+        for (int i = 0; i < 3; i++) {//outbox有3个数时
+            if (outbox[i] != num[i]) {
+                gotoxy(89, 15);
+                printf_red("Fail");
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                //delete p;
+                goto next_1;
+            }
+        }
+        // if success
+        gotoxy(89, 15);
+        printf_green("Success");
+        Sleep(2000);
+        finish_level = 1;
+        system("cls"); 
+    }
+};
+
+class task02 : virtual public base_task
+{
+public:
+    void dotask()
+    {
+        printf_yellow("您当前游玩的关卡是: sub走廊");
+        Sleep(2000);
+    next_2:
+        system("cls");
+        srand(time(0));
+        int num[8];
+        for (int i = 0; i < 8; i++) {
+            num[i] = rand() % 40-20;
+        }
+        vector<int> inbox;
+        for (int i = 0; i < 8; i++) {
+            inbox.push_back(num[i]);
+        }
+        vector<int> outbox;
+        vector<string> instructs;
+        int space[3] = { -1000,-1000,-1000 };
+        Sleep(100);
+        // 关卡内容
+        cout << "这是你的第二天" << endl;
+        cout << "关卡信息:对于inbox中的两个东西" << endl
+            << "先把第1个减去第2个，并把结果放在outbox内" << endl
+            << "然后，把第2个减去第1个，再把结果放在outbox内，重复";
+        cout << "可用空地数:3" << endl;
+        cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
+        cout << "请在copyfrom,copyto,add,sub后加上一个数字表示空地n,jump,jump if zero后加上一个数字表示第n行代码";
+        printSpace(3);
+        for (int i = 0; i < 6; i++) {
+            gotoxy(43, 14 + i * 2);
+            cout << all_instructs[i];
+        }//打印新的可用代码
+
+        printScreen(inbox, outbox);
+        
+        // 关卡内容
+        string n_string;
+        int n = 0;
+        cin >> n_string;
+        int weishu = 1;
+        for (int i = n_string.size() - 1; i >= 0; i--) {
+            if (n_string[i] < '0' || n_string[i] > '9') {
+                gotoxy(89, 15);
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line 0";
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                //delete p;
+                goto next_2;
+            }
+            n += (n_string[i] - '0') * weishu;
+            weishu *= 10;
+        }
+        getInstructs(n, instructs);
+        // if success
+
+        int error_on = doInstructs_2_3(n, instructs, inbox, outbox, space);
+
+        if (error_on != 0 || outbox.size() != 8) {//编译错误，程序没跑完或者outbox中数不为8个
+            gotoxy(89, 15);
+            if (error_on != 0) {//编译错误，程序没跑完
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line" << error_on;
+            }
+            else if (outbox.size() < 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
+            gotoxy(80, 17);
+            cout << "按下\"Enter\"重新开始";
+            bool waitForEnter = 1;
+            while (waitForEnter) {
+                if (_kbhit()) {
+                    char ch = _getch();
+                    if (ch == '\r') {
+                        waitForEnter = 0;
+                    }
+                }
+            }
+            goto next_2;
+        }
+
+        for (int i = 0; i < 8; i++) {//outbox有8个数时
+            if (i % 2 == 0) {//第0，2，4，6个数，为num[i]-num[i+1]
+                if (outbox[i] != num[i]-num[i+1]) {
+                    gotoxy(89, 15);
+                    printf_red("Fail");
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_2;
+                }
+            }
+            else {//第1，3，5，7个数，为num[i]-num[i-1]
+                if (outbox[i] != num[i] - num[i-1]) {
+                    gotoxy(89, 15);
+                    printf_red("Fail");
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_2;
+                }
+            }            
+        }
+        // if success
+        gotoxy(89, 15);
+        printf_green("Success");
+        Sleep(2000);
+        finish_level = 2;
+        system("cls");
+    }
+};
+
+class task03 : virtual public base_task
+{
+public:
     void dotask()
     {
         printf_yellow("您当前游玩的关卡是: 平等化室");
@@ -900,12 +851,37 @@ public:
         printScreen(inbox, outbox);
 
         // 关卡内容
-        int n;
-        scanf("%d", &n);
+        string n_string;
+        int n = 0;
+        cin >> n_string;
+        int weishu = 1;
+        for (int i = n_string.size() - 1; i >= 0; i--) {
+            if (n_string[i] < '0' || n_string[i] > '9') {
+                gotoxy(89, 15);
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on line 0";
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                //delete p;
+                goto next_3;
+            }
+            n += (n_string[i] - '0') * weishu;
+            weishu *= 10;
+        }
         getInstructs(n, instructs);
         // if success
 
-        int error_on = doInstructs(n, instructs, inbox, outbox, space);
+        int error_on = doInstructs_2_3(n, instructs, inbox, outbox, space);
 
         if (error_on != 0 || outbox.size() != equal_total) {//编译错误，程序没跑完或者outbox中数不为相等的数的个数
             gotoxy(89, 15);
@@ -1020,27 +996,7 @@ void showMenu(string name)
     cout << "请选择您想要挑战的关卡:" ;
 }
 
-int chooseLevel()
-{
-    int chosen_level;
-    cin >> chosen_level;
-    if (chosen_level > (highest_level + 1))
-    {
-        system("cls");
-        printf_red("您必须先通关先前的关卡!\n");
-        Sleep(2000);
-        system("cls");
-        return -1;
-    }
-    else
-    {
-        system("cls");
-        printf_green("正在进入关卡中...\n");
-        Sleep(2000);
-        system("cls");
-        return chosen_level;
-    }
-}
+
 
 int main()
 {
@@ -1072,7 +1028,7 @@ int main()
     }
     system("cls");
     skinPrepare();
-    
+    point_skin:
     gotoxy(10, 5);
     cout << "+----------+";
     for (int i = 0; i < 10; i++) {
@@ -1125,12 +1081,22 @@ int main()
          }
     }
     int skin_num = 1;
+    string skin_string;
     gotoxy(30, 22);
     cout << "请输入1,2,3";
     gotoxy(30, 20);
     cout << "请选择您的皮肤：";
-    cin >> skin_num;
-
+    cin >> skin_string;
+    if (skin_string.size() != 1 || skin_string[0] < '1' || skin_string[0] > '3') {
+        system("cls");
+        printf_red("输入错误,请输入正确的皮肤号！\n");
+        Sleep(2000);
+        system("cls");
+        goto point_skin;
+    }
+    else {
+        skin_num = skin_string[0] - '0';
+    }
     strcpy(robot[0], skin[skin_num-1][0]);
     strcpy(robot[1], skin[skin_num-1][1]);
     strcpy(robot[2], skin[skin_num-1][2]);
@@ -1141,9 +1107,36 @@ int main()
     bool is_continue = true;
     while (is_continue)
     {
-    a:
+    int user_choice = 0;
+    string chosen_level;
+    point_a:
         showMenu(name);
-        int user_choice = chooseLevel(); // user_choice==chosen_level
+        cin >> chosen_level;
+        if (chosen_level.size() != 1 || chosen_level[0] < '0' || chosen_level[0] > '4') {
+            system("cls");
+            printf_red("输入错误,请输入正确的关卡编号！\n");
+            Sleep(2000);
+            system("cls");
+            goto point_a;
+        }
+        else {
+            user_choice = chosen_level[0] - '0';
+        }// user_choice==chosen_level
+        if (user_choice > (highest_level + 1))
+        {
+            system("cls");
+            printf_red("您必须先通关先前的关卡!\n");
+            Sleep(2000);
+            system("cls");
+            return -1;
+        }
+        else
+        {
+            system("cls");
+            printf_green("正在进入关卡中...\n");
+            Sleep(2000);
+            system("cls");
+        }
         if (user_choice != -1)
         {
             switch (user_choice)
@@ -1210,7 +1203,7 @@ int main()
                 printf_red("输入错误,请输入正确的关卡编号！\n");
                 Sleep(2000);
                 system("cls");
-                goto a;
+                goto point_a;
                 break;
             }
             }

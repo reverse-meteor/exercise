@@ -16,7 +16,7 @@ void gotoxy(int x, int y);
 
 int highest_level = 0;
 string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
-string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jump if zero" };
+string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jumpifzero" };
 char skin[3][5][6];
 char robot[5][6];
 void skinPrepare(); 
@@ -104,8 +104,13 @@ public:
         int size_instruct = instruct.size();
         if (size_instruct <= 8) return 0;
         else {
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 8; i++) {
                 if (instruct[i] != all_instructs[0][i]) return 0;
+            }
+            for (int i = 8; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
             }
             return 1;
         }
@@ -117,6 +122,11 @@ public:
             for (int i = 0; i < 6; i++) {
                 if (instruct[i] != all_instructs[1][i]) return 0;
             }
+            for (int i = 6; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
+            }
             return 1;
         }
     }
@@ -126,6 +136,11 @@ public:
         else {
             for (int i = 0; i < 3; i++) {
                 if (instruct[i] != all_instructs[2][i]) return 0;
+            }
+            for (int i = 3; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
             }
             return 1;
         }
@@ -137,6 +152,11 @@ public:
             for (int i = 0; i < 3; i++) {
                 if (instruct[i] != all_instructs[3][i]) return 0;
             }
+            for (int i = 3; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
+            }
             return 1;
         }
     }
@@ -147,15 +167,25 @@ public:
             for (int i = 0; i < 4; i++) {
                 if (instruct[i] != all_instructs[4][i]) return 0;
             }
+            for (int i = 4; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
+            }
             return 1;
         }
     }
     bool checkJump_if_zero(string instruct) {
         int size_instruct = instruct.size();
-        if (size_instruct <= 12) return 0;
+        if (size_instruct <= 10) return 0;
         else {
-            for (int i = 0; i < 12; i++) {
+            for (int i = 0; i < 10; i++) {
                 if (instruct[i] != all_instructs[5][i]) return 0;
+            }
+            for (int i = 10; i < instruct.size(); i++) {
+                if ((instruct[i] < '0' || instruct[i]>'9') && (instruct[i] != ' ')) {
+                    return 0;
+                }
             }
             return 1;
         }
@@ -549,7 +579,7 @@ public:
             }
             else if (checkJump_if_zero(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= n || num <= 0 || carry == 0) return i;
+                if (num > n || num <= 0 || carry == 0) return i;
                 else {
                     if (on_hand == 0) {
                         Sleep(200);
@@ -561,7 +591,7 @@ public:
             }
             else if (checkJump(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= n || num <= 0) return i;
+                if (num > n || num <= 0) return i;
                 else {
                     Sleep(200);
                     gotoxy(59, 9 + i);
@@ -907,7 +937,7 @@ public:
                 gotoxy(80, 16);
                 cout << "on instruction" << error_on;
             }
-            else if (outbox.size() < 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
+            else if (outbox.size() != 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
             gotoxy(80, 17);
             cout << "按下\"Enter\"重新开始";
             bool waitForEnter = 1;
@@ -1154,7 +1184,7 @@ public:
 
         // if success
         gotoxy(89, 15);
-        printf_green("挑战成功！");
+        printf_green("Success");
         Sleep(2000);
         finish_level = 3;
         system("cls");

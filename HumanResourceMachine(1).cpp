@@ -20,11 +20,75 @@ string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jump if zero
 char skin[3][5][6];
 char robot[5][6];
 void skinPrepare(); 
+void pressEnter();
 
 class base_task
 {
 public:
-    
+    void printChooseInput(bool file_input) {
+        gotoxy(15, 10);
+        cout << "选择终端输入";
+        gotoxy(40, 10);
+        cout << "选择文件输入";
+        gotoxy(20, 20);
+        cout << "按下\"a\",\"d\"切换模式选择";
+        gotoxy(20, 21);
+        cout << "按下\"Enter\"确定所选模式";
+        if (file_input == 0) {
+            gotoxy(14, 9);
+            cout << "+------------+";
+            gotoxy(14, 10);
+            cout << "|选择终端输入|";
+            gotoxy(14, 11);
+            cout << "+------------+";
+        }
+        else {
+            gotoxy(39, 9);
+            cout << "+------------+";
+            gotoxy(39, 10);
+            cout << "|选择文件输入|";
+            gotoxy(39, 11);
+            cout << "+------------+";
+        }
+    }
+    bool checkFile() {
+        system("cls");
+        bool file_input = 0;
+        bool waitForEnter = 1;
+        printChooseInput(file_input);
+        while (waitForEnter) {
+            if (_kbhit()) {
+                char ch = _getch();
+                if (ch == '\r') {
+                    waitForEnter = 0;
+                    system("cls");
+                    return file_input;
+                }
+                else if (ch == 'a') {
+                    file_input = 0; 
+                    system("cls");
+                    printChooseInput(file_input);
+                    
+                }
+                else if (ch == 'd') {
+                    file_input = 1;
+                    system("cls");
+                    printChooseInput(file_input);
+                }
+            }
+        }
+    }
+    string getFileName() {
+        string file_name;
+        gotoxy(30, 13);
+        cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容";
+        gotoxy(34, 14);
+        cout << "且默认文件格式为.txt。即若为x.txt，请输入x";
+        gotoxy(30, 10);
+        cout << "请输入导入文件名：";
+        cin >> file_name;
+        return file_name + ".txt";
+    }
     int getNumFromInstruct(string instruct) {
         int size_instruct = instruct.size();
         int num = 0;
@@ -218,6 +282,7 @@ public:
             instructs.push_back(input);
         }
     }
+
     void printInbox(vector<int>& inbox) {//打印inbox
         gotoxy(0, 8);
         cout << "Inbox" << endl << endl;
@@ -525,16 +590,27 @@ public:
     int doInstructs(int n, vector<string>& instructs, vector<int>& inbox, vector<int>& outbox) {//操作执行
         int on_hand = 1000;
         bool carry = 0;
-        for (int i = 1; i <= n; i++) {
+        for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
             gotoxy(59, 9 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
-                if (inbox.size() == 0) return i;//防止访问越界
+                if (inbox.size() == 0) {
+                    gotoxy(59, 9 + i);
+                    cout << "  ";
+                    return 0;
+                }//程序结束
+                if (carry == 1) {
+                    for (int i = 0; i < 4; i++) {
+                        gotoxy(10, 10 + i);
+                        cout << "     ";
+                    }
+                }
                 on_hand = instructInbox(on_hand, inbox);
                 carry = 1;
+
             }
             else if (instructs[i - 1] == "outbox") {
-                if (carry==0) return i;
+                if (carry == 0) return i;
                 else {
                     on_hand = instructOutbox(on_hand, outbox);
                     carry = 0;
@@ -550,66 +626,116 @@ public:
     }
     void dotask()
     {
+        bool file_input=0;
         printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
     next_1:
         system("cls");
+        file_input = checkFile();
+        system("cls");
         srand(time(0));
-        int num[3];
+        int num[2];
         num[0] = rand() % 40;
         num[1] = rand() % 40;
-        num[2] = rand() % 40;
         vector<int> inbox;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             inbox.push_back(num[i]);
         }
         vector<int> outbox;
         vector<string> instructs;
+        string n_string;
+        int n = 0;
         Sleep(100);
+        string file_name;
+        if (file_input == 1) {
+            file_name = getFileName();
+        }
+        system("cls");
         // 关卡内容
         cout << "欢迎新员工！这是你的第一天" << endl;
         cout << "关卡信息:让机器人取出输入序列(Inbox)上的每个积木放入输出序列(Outbox)中" << endl;
         cout << "可用空地数:0" << endl;
         cout << "可用指令集:inbox,outbox" << endl;
         printScreen(inbox, outbox);
-        string n_string;
-        int n=0;
-        cin >> n_string;
-        int weishu = 1;
-        for (int i = n_string.size()-1; i >=0 ; i--) {
-            if (n_string[i] < '0' || n_string[i] > '9') {
-                gotoxy(89, 15);
-                printf_red("Error");
-                gotoxy(80, 16);
-                cout << "on line 0" ;
-                gotoxy(80, 17);
-                cout << "按下\"Enter\"重新开始";
-                bool waitForEnter = 1;
-                while (waitForEnter) {
-                    if (_kbhit()) {
-                        char ch = _getch();
-                        if (ch == '\r') {
-                            waitForEnter = 0;
+        //以下为输入
+        if (file_input == 0) {
+            cin >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
                         }
                     }
+                    goto next_1;
                 }
-                //delete p;
-                goto next_1;
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
             }
-            n += (n_string[i] - '0') * weishu;
-            weishu *= 10;
+            getInstructs(n, instructs);
         }
-        getInstructs(n, instructs);
+        else {
+            ifstream file_in(file_name);
+            file_in >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_1;
+                }
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
+            }
+            gotoxy(63, 9);
+            cout << n;
+            string input;
+            getline(file_in, input);
+            for (int i = 0; i < n; i++) {
+                string input;
+                getline(file_in, input);
+                instructs.push_back(input);
+            }
+            for (int i = 1; i <= n; i++) {
+                gotoxy(61, 9 + i);
+                cout << i << ' '<<instructs[i-1];
+            }
+        }
+        //以上这部分均为输入
         int error_on = doInstructs(n, instructs, inbox, outbox);
 
-        if (error_on != 0 || outbox.size() != 3) {//编译错误，程序没跑完或者outbox中数不为3个
+        if (error_on != 0 || outbox.size() != 2) {//编译错误，程序没跑完或者outbox中数不为2个
             gotoxy(89, 15);
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
                 gotoxy(80, 16);
-                cout << "on line " << error_on;
+                cout << "on instruction " << error_on;
             }
-            else if (outbox.size() < 3) printf_red("Fail");//outbox中数不为3个,结果一定错误
+            else if (outbox.size() !=2 ) printf_red("Fail");//outbox中数不为2个,结果一定错误
             gotoxy(80, 17);
             cout << "按下\"Enter\"重新开始";
             bool waitForEnter = 1;
@@ -625,7 +751,7 @@ public:
             goto next_1;
         }
 
-        for (int i = 0; i < 3; i++) {//outbox有3个数时
+        for (int i = 0; i < 2; i++) {//outbox有2个数时
             if (outbox[i] != num[i]) {
                 gotoxy(89, 15);
                 printf_red("Fail");
@@ -658,9 +784,12 @@ class task02 : virtual public base_task
 public:
     void dotask()
     {
+        bool file_input = 0;
         printf_yellow("您当前游玩的关卡是: sub走廊");
         Sleep(2000);
     next_2:
+        system("cls");
+        file_input = checkFile();
         system("cls");
         srand(time(0));
         int num[8];
@@ -673,6 +802,14 @@ public:
         }
         vector<int> outbox;
         vector<string> instructs;
+        string n_string;
+        int n = 0;
+        Sleep(100);
+        string file_name;
+        if (file_input == 1) {
+            file_name = getFileName();
+        }
+        system("cls");
         int space[3] = { -1000,-1000,-1000 };
         Sleep(100);
         // 关卡内容
@@ -692,34 +829,73 @@ public:
         printScreen(inbox, outbox);
         
         // 关卡内容
-        string n_string;
-        int n = 0;
-        cin >> n_string;
-        int weishu = 1;
-        for (int i = n_string.size() - 1; i >= 0; i--) {
-            if (n_string[i] < '0' || n_string[i] > '9') {
-                gotoxy(89, 15);
-                printf_red("Error");
-                gotoxy(80, 16);
-                cout << "on line 0";
-                gotoxy(80, 17);
-                cout << "按下\"Enter\"重新开始";
-                bool waitForEnter = 1;
-                while (waitForEnter) {
-                    if (_kbhit()) {
-                        char ch = _getch();
-                        if (ch == '\r') {
-                            waitForEnter = 0;
+        if (file_input == 0) {
+            cin >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
                         }
                     }
+                    goto next_2;
                 }
-                //delete p;
-                goto next_2;
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
             }
-            n += (n_string[i] - '0') * weishu;
-            weishu *= 10;
+            getInstructs(n, instructs);
         }
-        getInstructs(n, instructs);
+        else {
+            ifstream file_in(file_name);
+            file_in >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_2;
+                }
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
+            }
+            gotoxy(63, 9);
+            cout << n;
+            string input;
+            getline(file_in, input);
+            for (int i = 0; i < n; i++) {
+                string input;
+                getline(file_in, input);
+                instructs.push_back(input);
+            }
+            for (int i = 1; i <= n; i++) {
+                gotoxy(61, 9 + i);
+                cout << i << ' ' << instructs[i - 1];
+            }
+        }
         // if success
 
         int error_on = doInstructs_2_3(n, instructs, inbox, outbox, space);
@@ -729,7 +905,7 @@ public:
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
                 gotoxy(80, 16);
-                cout << "on line" << error_on;
+                cout << "on instruction" << error_on;
             }
             else if (outbox.size() < 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
             gotoxy(80, 17);
@@ -798,9 +974,12 @@ class task03 : virtual public base_task
 public:
     void dotask()
     {
+        bool file_input = 0;
         printf_yellow("您当前游玩的关卡是: 平等化室");
         Sleep(2000);
     next_3:
+        system("cls");
+        file_input = checkFile();
         system("cls");
         int equal_total = 0;
         srand(time(0));
@@ -832,6 +1011,14 @@ public:
         }
         vector<int> outbox;
         vector<string> instructs;
+        string n_string;
+        int n = 0;
+        Sleep(100);
+        string file_name;
+        if (file_input == 1) {
+            file_name = getFileName();
+        }
+        system("cls");
         int space[3] = { -1000,-1000,-1000 };
         Sleep(100);
         // 关卡内容
@@ -851,34 +1038,73 @@ public:
         printScreen(inbox, outbox);
 
         // 关卡内容
-        string n_string;
-        int n = 0;
-        cin >> n_string;
-        int weishu = 1;
-        for (int i = n_string.size() - 1; i >= 0; i--) {
-            if (n_string[i] < '0' || n_string[i] > '9') {
-                gotoxy(89, 15);
-                printf_red("Error");
-                gotoxy(80, 16);
-                cout << "on line 0";
-                gotoxy(80, 17);
-                cout << "按下\"Enter\"重新开始";
-                bool waitForEnter = 1;
-                while (waitForEnter) {
-                    if (_kbhit()) {
-                        char ch = _getch();
-                        if (ch == '\r') {
-                            waitForEnter = 0;
+        if (file_input == 0) {
+            cin >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
                         }
                     }
+                    goto next_3;
                 }
-                //delete p;
-                goto next_3;
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
             }
-            n += (n_string[i] - '0') * weishu;
-            weishu *= 10;
+            getInstructs(n, instructs);
         }
-        getInstructs(n, instructs);
+        else {
+            ifstream file_in(file_name);
+            file_in >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_3;
+                }
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
+            }
+            gotoxy(63, 9);
+            cout << n;
+            string input;
+            getline(file_in, input);
+            for (int i = 0; i < n; i++) {
+                string input;
+                getline(file_in, input);
+                instructs.push_back(input);
+            }
+            for (int i = 1; i <= n; i++) {
+                gotoxy(61, 9 + i);
+                cout << i << ' ' << instructs[i - 1];
+            }
+        }
         // if success
 
         int error_on = doInstructs_2_3(n, instructs, inbox, outbox, space);
@@ -888,7 +1114,7 @@ public:
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
                 gotoxy(80, 16);
-                cout << "on line" << error_on;
+                cout << "on instruction" << error_on;
             }
             else if (outbox.size() != equal_total) printf_red("Fail");//outbox中数不为相等的数的个数,结果一定错误
             gotoxy(80, 17);
@@ -1002,17 +1228,19 @@ int main()
 {
     gotoxy(40,10);
     printf_yellow("Human Resource Machine by 何雨宸和陈家睦\n");
-    Sleep(2000);
-    system("cls");
-    string name;
-    gotoxy(30, 12);
-    cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
-    gotoxy(30, 10);
-    cout << "请输入您的玩家信息：";
-    cin >> name;
-    string progress = name + ".txt";
+    gotoxy(50, 12);
+    cout << "按下\"Enter\"开始游戏";
+    pressEnter();
+    //system("cls");
+    //string name;
+    //gotoxy(30, 12);
+    //cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
+    //gotoxy(30, 10);
+    //cout << "请输入您的玩家信息：";
+    //cin >> name;
+    //string progress = name + ".txt";
     fstream fs;
-    fs.open(progress, ios::in);
+    fs.open("PlayProgress.txt", ios::in);
     if (fs.get() == -1)
     {
         highest_level = fs.get() + 1;
@@ -1022,7 +1250,7 @@ int main()
     {
         fs.close();
         ifstream rfs;
-        rfs.open(progress, ios::in);
+        rfs.open("PlayProgress.txt", ios::in);
         highest_level = rfs.get() - 48;
         rfs.close();
     }
@@ -1110,7 +1338,7 @@ int main()
     int user_choice = 0;
     string chosen_level;
     point_a:
-        showMenu(name);
+        showMenu("PlayProgress.txt");
         cin >> chosen_level;
         if (chosen_level.size() != 1 || chosen_level[0] < '0' || chosen_level[0] > '4') {
             system("cls");
@@ -1255,4 +1483,16 @@ void skinPrepare(){
     strcpy(skin[2][3], "  *   ");
     strcpy(skin[2][4], " / \\  ");
 
+}
+
+void pressEnter() {
+    bool waitForEnter = 1;
+    while (waitForEnter) {
+        if (_kbhit()) {
+            char ch = _getch();
+            if (ch == '\r') {
+                waitForEnter = 0;
+            }
+        }
+    }
 }

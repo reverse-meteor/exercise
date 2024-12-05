@@ -191,18 +191,18 @@ public:
         }
     }
     
-    void recordGame()     //记录游戏记录
+    void recordGame(string progress)     //记录游戏记录
     {
         ofstream ofs;
-        ofs.open("PlayProgress.txt", ios::trunc);//trunc模式打开游戏记录文件，清除原来的记录
+        ofs.open(progress, ios::trunc);//trunc模式打开游戏记录文件，清除原来的记录
         ofs << highest_level;//写入现在游玩的最高关卡
         ofs.close();
     }
     virtual void dotask() {}
-    int getRecord()//读取游戏记录文件，得到之前游玩的最高关卡
+    int getRecord(string progress)//读取游戏记录文件，得到之前游玩的最高关卡
     {
         ifstream ifs;
-        ifs.open("PlayProgress.txt", ios::in);
+        ifs.open(progress, ios::in);
         if (!ifs.is_open())
         {
             cout << "游玩记录文件打开失败" << endl;
@@ -212,9 +212,9 @@ public:
         ifs.close();
         return c - 48;
     }
-    void updateHighest_level()//更新当前的最高游玩记录
+    void updateHighest_level(string progress)//更新当前的最高游玩记录
     {
-        int temp = getRecord();//temp变量记录之前游玩的最高关卡
+        int temp = getRecord(progress);//temp变量记录之前游玩的最高关卡
         if (temp < finish_level)//和现在完成的关卡进行比较，对最高游玩记录进行更新
             highest_level = finish_level;
         if (highest_level > 4)
@@ -1261,16 +1261,16 @@ int main()
     gotoxy(50, 12);
     cout << "按下\"Enter\"开始游戏";
     pressEnter();
-    //system("cls");
-    //string name;
-    //gotoxy(30, 12);
-    //cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
-    //gotoxy(30, 10);
-    //cout << "请输入您的玩家信息：";
-    //cin >> name;
-    //string progress = name + ".txt";
+    system("cls");
+    string name;
+    gotoxy(30, 12);
+    cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
+    gotoxy(30, 10);
+    cout << "请输入您的玩家信息：";
+    cin >> name;
+    string progress = name + ".txt";
     fstream fs;
-    fs.open("PlayProgress.txt", ios::in);
+    fs.open(progress, ios::in);
     if (fs.get() == -1)
     {
         highest_level = fs.get() + 1;
@@ -1280,7 +1280,7 @@ int main()
     {
         fs.close();
         ifstream rfs;
-        rfs.open("PlayProgress.txt", ios::in);
+        rfs.open(progress, ios::in);
         highest_level = rfs.get() - 48;
         rfs.close();
     }
@@ -1368,7 +1368,7 @@ int main()
     int user_choice = 0;
     string chosen_level;
     point_a:
-        showMenu("PlayProgress.txt");
+        showMenu(name);
         cin >> chosen_level;
         if (chosen_level.size() != 1 || chosen_level[0] < '0' || chosen_level[0] > '4') {
             system("cls");
@@ -1402,10 +1402,10 @@ int main()
             case 1:
             {
                 base_task* base01 = new task01;
-                base01->recordGame();
+                base01->recordGame(progress);
                 base01->dotask();
-                base01->updateHighest_level();
-                base01->recordGame();
+                base01->updateHighest_level(progress);
+                base01->recordGame(progress);
                 is_continue = base01->continueToPlay();
                 if (base01 != NULL)
                 {
@@ -1418,8 +1418,8 @@ int main()
             {
                 base_task* base02 = new task02;
                 base02->dotask();
-                base02->updateHighest_level();
-                base02->recordGame();
+                base02->updateHighest_level(progress);
+                base02->recordGame(progress);
                 is_continue = base02->continueToPlay();
                 if (base02 != NULL)
                 {
@@ -1432,8 +1432,8 @@ int main()
             {
                 base_task* base03 = new task03;
                 base03->dotask();
-                base03->updateHighest_level();
-                base03->recordGame();
+                base03->updateHighest_level(progress);
+                base03->recordGame(progress);
                 is_continue = base03->continueToPlay();
                 if (base03 != NULL)
                 {
@@ -1446,8 +1446,8 @@ int main()
             {
                 base_task* base04 = new task04;
                 base04->dotask();
-                base04->updateHighest_level();
-                base04->recordGame();
+                base04->updateHighest_level(progress);
+                base04->recordGame(progress);
                 is_continue = base04->continueToPlay();
                 if (base04 != NULL)
                 {
@@ -1495,23 +1495,23 @@ void gotoxy(int x, int y) { //更改光标位置，实现在指定位置输出�
 
 void skinPrepare(){
 
-    strcpy(skin[0][0], "----- ");
-    strcpy(skin[0][1], "|@ @| ");
-    strcpy(skin[0][2], "  +   ");
-    strcpy(skin[0][3], "/   \\ ");
-    strcpy(skin[0][4], " | |  ");
+    strcpy(skin[0][0], "-----");
+    strcpy(skin[0][1], "|@ @|");
+    strcpy(skin[0][2], "  +  ");
+    strcpy(skin[0][3], "/   \\");
+    strcpy(skin[0][4], " | | ");
 
-    strcpy(skin[1][0], " +-+  ");
-    strcpy(skin[1][1], " |_|  ");
-    strcpy(skin[1][2], "/2|4\\ ");
-    strcpy(skin[1][3], "  | @ ");
-    strcpy(skin[1][4], " / \\  ");
+    strcpy(skin[1][0], " +-+ ");
+    strcpy(skin[1][1], " |_| ");
+    strcpy(skin[1][2], "/2|4\\");
+    strcpy(skin[1][3], "  | @");
+    strcpy(skin[1][4], " / \\ ");
 
-    strcpy(skin[2][0], "  @   ");
-    strcpy(skin[2][1], "--*-- ");
-    strcpy(skin[2][2], "  |   ");
-    strcpy(skin[2][3], "  *   ");
-    strcpy(skin[2][4], " / \\  ");
+    strcpy(skin[2][0], "  @  ");
+    strcpy(skin[2][1], "--*--");
+    strcpy(skin[2][2], "  |  ");
+    strcpy(skin[2][3], "  *  ");
+    strcpy(skin[2][4], " / \\ ");
 
 }
 

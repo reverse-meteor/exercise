@@ -13,14 +13,16 @@ void printf_red(const char* s);
 void printf_green(const char* s);
 void printf_yellow(const char* s); 
 void gotoxy(int x, int y);
+void chooseSpeed();
 
 int highest_level = 0;
-string level_name[4] = { "收发室", "sub走廊", "平等化室", "待定" };
+string level_name[4] = { "收发室", "sub走廊", "平等化室", "三合院" };
 string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jumpifzero" };
 char skin[3][5][6];
 char robot[5][6];
 void skinPrepare(); 
 void pressEnter();
+int speed=1;
 
 class base_task
 {
@@ -306,7 +308,7 @@ public:
         string input;
         getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
         for (int i = 1; i <= n; i++) {
-            gotoxy(61, 9 + i);
+            gotoxy(61, 8 + i);
             cout << i << ' ';
             getline(cin, input);
             instructs.push_back(input);
@@ -352,23 +354,23 @@ public:
         if (Spacex > Spacey) {
             for (int i = 10 + Spacex * 4; i >= 10 + Spacey * 4; i--) {
                 showRobot(carry, i, carry_num);
-                Sleep(200);
+                Sleep(600/speed);
             }
         }
         else if (Spacex < Spacey) {
             for (int i = 10 + Spacex * 4; i <= 10 + Spacey * 4; i++) {
                 showRobot(carry, i, carry_num);
-                Sleep(200);
+                Sleep(600 / speed);
             }
         }
 
     }
     int instructInbox(int onhand, vector<int>& inbox) {//inbox操作
 
-        Sleep(200);
+        Sleep(600 / speed);
         for (int i = 9; i >= 6; i--) {
             showRobot(0, i, 0);
-            Sleep(200);
+            Sleep(600 / speed);
         }
         onhand = inbox[0];  //onhand变量记录机器人搬的东西
         inbox.erase(inbox.begin());
@@ -379,21 +381,21 @@ public:
             cout << "     ";
         }
 
-        Sleep(200);
+        Sleep(600 / speed);
         printInbox(inbox);
-        Sleep(200);
+        Sleep(600 / speed);
 
         for (int i = 6; i <= 10; i++) {
             showRobot(1, i, onhand);
-            Sleep(200);
+            Sleep(600 / speed);
         }
         return onhand;
     }
     int instructOutbox(int onhand, vector<int>& outbox) {//outbox操作
-        Sleep(200);
+        Sleep(600 / speed);
         for (int i = 11; i <= 29; i++) {
             showRobot(1, i, onhand);
-            Sleep(200);
+            Sleep(600 / speed);
         }
         outbox.push_back(onhand);
         onhand = -1000;
@@ -403,18 +405,18 @@ public:
             gotoxy(29, 8 + i);
             cout << "     ";
         }
-        Sleep(200);
+        Sleep(600 / speed);
 
         for (int i = 28; i >= 10; i--) {
             showRobot(0, i, 0);
-            Sleep(200);
+            Sleep(600 / speed);
         }
         return onhand;
     }
     int instructCopyfrom(bool carry,int on_hand, int num,int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand = space[num];
-        Sleep(250);
+        Sleep(900 / speed);
         carry = 1;
         showRobot(1, 10 + num * 4, on_hand);
         fromSpacexToSpacey(carry, num, 0, on_hand);
@@ -423,7 +425,7 @@ public:
     int instructCopyto(bool carry, int on_hand, int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         space[num] = on_hand;
-        Sleep(250);
+        Sleep(900 / speed);
         gotoxy(11+num*4, 21);
         cout<<"   ";
         gotoxy(11 + num * 4, 21);
@@ -434,7 +436,7 @@ public:
     int instructAdd(bool carry,int on_hand,int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand += space[num];
-        Sleep(250);
+        Sleep(900/speed);
         showRobot(1, 10+num*4, on_hand);
         fromSpacexToSpacey(carry, num, 0, on_hand);
         return on_hand;
@@ -442,7 +444,7 @@ public:
     int instructSub(bool carry, int on_hand, int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand -= space[num];
-        Sleep(250);
+        Sleep(900/speed);
         showRobot(1, 10 + num * 4, on_hand);
         fromSpacexToSpacey(carry, num, 0, on_hand);
         return on_hand;
@@ -456,10 +458,10 @@ public:
         printOutbox(outbox);
 
 
-        for (int i = 0; i < 20; i++) {
-            gotoxy(41, 8 + i);
+        for (int i = 0; i < 23; i++) {
+            gotoxy(41, 7 + i);
             cout << '|';
-            gotoxy(57, 8 + i);
+            gotoxy(57, 7 + i);
             cout << '|';
         }
 
@@ -496,10 +498,8 @@ public:
         cout << "+--------------------+";
 
         gotoxy(59, 7);
-        cout << "你的代码:";
-        gotoxy(59, 8);
         cout << "=====CODE=====";
-        gotoxy(61, 9);
+        gotoxy(61, 8);
         cout << "0 ";
         /*gotoxy()*/
     }
@@ -514,11 +514,11 @@ public:
         int on_hand = 1000;
         bool carry = 0;
         for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
-            gotoxy(59, 9 + i);
+            gotoxy(59, 8 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
                 if (inbox.size() == 0) {
-                    gotoxy(59, 9 + i);
+                    gotoxy(59, 8 + i);
                     cout << "  ";
                     return 0;
                 }//程序结束
@@ -582,8 +582,8 @@ public:
                 if (num > n || num <= 0 || carry == 0) return i;
                 else {
                     if (on_hand == 0) {
-                        Sleep(200);
-                        gotoxy(59, 9 + i);
+                        Sleep(600 / speed);
+                        gotoxy(59, 8 + i);
                         cout << "  ";
                         i = num - 1;
                     }
@@ -593,8 +593,8 @@ public:
                 int num = getNumFromInstruct(instructs[i - 1]);
                 if (num > n || num <= 0) return i;
                 else {
-                    Sleep(200);
-                    gotoxy(59, 9 + i);
+                    Sleep(600 / speed);
+                    gotoxy(59, 8 + i);
                     cout << "  ";
                     i = num - 1;
                 }
@@ -603,7 +603,7 @@ public:
             else {
                 return i;
             }
-            gotoxy(59, 9 + i);
+            gotoxy(59, 8 + i);
             cout << "  ";
         }
         return 0;
@@ -621,11 +621,11 @@ public:
         int on_hand = 1000;
         bool carry = 0;
         for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
-            gotoxy(59, 9 + i);
+            gotoxy(59, 8 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
                 if (inbox.size() == 0) {
-                    gotoxy(59, 9 + i);
+                    gotoxy(59, 8 + i);
                     cout << "  ";
                     return 0;
                 }//程序结束
@@ -649,7 +649,7 @@ public:
             else {
                 return i;
             }
-            gotoxy(59, 9 + i);
+            gotoxy(59, 8 + i);
             cout << "  ";
         }
         return 0;
@@ -741,7 +741,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 9);
+            gotoxy(63, 8);
             cout << n;
             string input;
             getline(file_in, input);
@@ -751,7 +751,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 9 + i);
+                gotoxy(61, 8 + i);
                 cout << i << ' '<<instructs[i-1];
             }
         }
@@ -922,7 +922,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 9 + i);
+                gotoxy(61, 8 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }
@@ -935,7 +935,7 @@ public:
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
                 gotoxy(80, 16);
-                cout << "on instruction" << error_on;
+                cout << "on instruction " << error_on;
             }
             else if (outbox.size() != 8) printf_red("Fail");//outbox中数不为8个,结果一定错误
             gotoxy(80, 17);
@@ -1121,7 +1121,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 9);
+            gotoxy(63, 8);
             cout << n;
             string input;
             getline(file_in, input);
@@ -1131,7 +1131,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 9 + i);
+                gotoxy(61, 8 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }
@@ -1144,7 +1144,7 @@ public:
             if (error_on != 0) {//编译错误，程序没跑完
                 printf_red("Error");
                 gotoxy(80, 16);
-                cout << "on instruction" << error_on;
+                cout << "on instruction " << error_on;
             }
             else if (outbox.size() != equal_total) printf_red("Fail");//outbox中数不为相等的数的个数,结果一定错误
             gotoxy(80, 17);
@@ -1196,15 +1196,181 @@ class task04 : virtual public base_task
 public:
     void dotask()
     {
-        printf_yellow("您当前游玩的关卡是: 待定");
+        bool file_input = 0;
+        printf_yellow("您当前游玩的关卡是: 三合院");
         Sleep(2000);
+    next_3:
         system("cls");
+        file_input = checkFile();
+        system("cls");
+        int equal_total = 0;
+        srand(time(0));
+        int num[3][6] = { { 2,3,5,4,1,3 },{ 4,13,9,8,10,8 },{ 5,5,2,9,7,16 } };
+        vector<int> answer;
+        int choose_seed = rand() % 3;
+        if (choose_seed == 0) {
+            answer.push_back(2);
+            answer.push_back(4);
+            equal_total = 2;
+        }
+        else if (choose_seed == 1) {
+            answer.push_back(4);
+            equal_total = 1;
+        }
+        else {
+            answer.push_back(9);
+            equal_total = 1;
+        }
+        vector<int> inbox;
+        for (int i = 0; i < 6; i++) {
+            inbox.push_back(num[choose_seed][i]);
+        }
+        vector<int> outbox;
+        vector<string> instructs;
+        string n_string;
+        int n = 0;
+        Sleep(100);
+        string file_name;
+        if (file_input == 1) {
+            file_name = getFileName();
+        }
+        system("cls");
+        int space[3] = { -1000,-1000,-1000 };
+        Sleep(100);
+        // 关卡内容
+        cout << "这是你的最后一天" << endl;
+        cout << "关卡信息:对于inbox中的三个东西" << endl
+            << "如果某一个等于另外两个的和，则把第一个数放到oubox中" << endl
+            << "不相等的扔掉，重复";
+        cout << "可用空地数:3" << endl;
+        cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;
+        cout << "请在copyfrom,copyto,add,sub后加上一个数字表示空地n,jump,jump if zero后加上一个数字表示第n行代码";
+        printSpace(3);
+        for (int i = 0; i < 6; i++) {
+            gotoxy(43, 14 + i * 2);
+            cout << all_instructs[i];
+        }//打印新的可用代码
+
+        printScreen(inbox, outbox);
+
+        // 关卡内容
+        if (file_input == 0) {
+            cin >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_3;
+                }
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
+            }
+            getInstructs(n, instructs);
+        }
+        else {
+            ifstream file_in(file_name);
+            file_in >> n_string;
+            int weishu = 1;
+            for (int i = n_string.size() - 1; i >= 0; i--) {
+                if (n_string[i] < '0' || n_string[i] > '9') {
+                    gotoxy(89, 15);
+                    printf_red("Error");
+                    gotoxy(80, 16);
+                    cout << "on instruction 0";
+                    gotoxy(80, 17);
+                    cout << "按下\"Enter\"重新开始";
+                    bool waitForEnter = 1;
+                    while (waitForEnter) {
+                        if (_kbhit()) {
+                            char ch = _getch();
+                            if (ch == '\r') {
+                                waitForEnter = 0;
+                            }
+                        }
+                    }
+                    goto next_3;
+                }
+                n += (n_string[i] - '0') * weishu;
+                weishu *= 10;
+            }
+            gotoxy(63, 8);
+            cout << n;
+            string input;
+            getline(file_in, input);
+            for (int i = 0; i < n; i++) {
+                string input;
+                getline(file_in, input);
+                instructs.push_back(input);
+            }
+            for (int i = 1; i <= n; i++) {
+                gotoxy(61, 8 + i);
+                cout << i << ' ' << instructs[i - 1];
+            }
+        }
+        // if success
+
+        int error_on = doInstructs_2_3(n, instructs, inbox, outbox, space);
+
+        if (error_on != 0 || outbox.size() != equal_total) {//编译错误，程序没跑完或者outbox中数不为相等的数的个数
+            gotoxy(89, 15);
+            if (error_on != 0) {//编译错误，程序没跑完
+                printf_red("Error");
+                gotoxy(80, 16);
+                cout << "on instruction " << error_on;
+            }
+            else if (outbox.size() != 2) printf_red("Fail");//outbox中数不为相等的数的个数,结果一定错误
+            gotoxy(80, 17);
+            cout << "按下\"Enter\"重新开始";
+            bool waitForEnter = 1;
+            while (waitForEnter) {
+                if (_kbhit()) {
+                    char ch = _getch();
+                    if (ch == '\r') {
+                        waitForEnter = 0;
+                    }
+                }
+            }
+            goto next_3;
+        }
+
+        for (int i = 0; i < equal_total; i++) {//outbox有equal_total个数时
+            if (outbox[i] != answer[i]) {
+                gotoxy(89, 15);
+                printf_red("Fail");
+                gotoxy(80, 17);
+                cout << "按下\"Enter\"重新开始";
+                bool waitForEnter = 1;
+                while (waitForEnter) {
+                    if (_kbhit()) {
+                        char ch = _getch();
+                        if (ch == '\r') {
+                            waitForEnter = 0;
+                        }
+                    }
+                }
+                goto next_3;
+            }
+        }
 
         // 关卡内容
 
         // if success
-
-        printf_green("挑战成功！");
+        gotoxy(89, 15);
+        printf_green("Success");
         Sleep(2000);
         finish_level = 4;
         system("cls");
@@ -1362,6 +1528,29 @@ int main()
     strcpy(robot[4], skin[skin_num-1][4]);
 
     system("cls");
+    bool waitForEnter = 1;
+    chooseSpeed();
+    while (waitForEnter) {
+        if (_kbhit()) {
+            char ch = _getch();
+            if (ch == '\r') {
+                waitForEnter = 0;
+                system("cls");
+                break;
+            }
+            else if (ch == 'a') {
+                if(speed>1)speed--;
+                system("cls");
+                chooseSpeed();
+
+            }
+            else if (ch == 'd') {
+                if (speed < 6)speed++;
+                system("cls");
+                chooseSpeed();
+            }
+        }
+    }
     bool is_continue = true;
     while (is_continue)
     {
@@ -1525,4 +1714,34 @@ void pressEnter() {
             }
         }
     }
+}
+
+void chooseSpeed() {
+    gotoxy(35, 5);
+    cout << "请选择机器人移动速度";
+    gotoxy(30, 10);
+    cout << "1";
+    gotoxy(35, 10);
+    cout << "2";
+    gotoxy(40, 10);
+    cout << "3";
+    gotoxy(45, 10);
+    cout << "4";
+    gotoxy(50, 10);
+    cout << "5";
+    gotoxy(55, 10);
+    cout << "6";
+    gotoxy(30, 20);
+    cout << "按下\"a\",\"d\"切换速度选择";
+    gotoxy(30, 21);
+    cout << "按下\"Enter\"确定速度";
+    gotoxy(23 + 5 * speed, 9);
+    cout << "*---*";
+    gotoxy(23 + 5 * speed, 11);
+    cout << "*---*";
+    gotoxy(23 + 5 * speed, 10);
+    cout << "|";
+    gotoxy(27 + 5 * speed, 10);
+    cout << "|";
+
 }

@@ -22,6 +22,9 @@ char skin[3][5][6];
 char robot[5][6];
 void skinPrepare();
 void pressEnter();
+void showChosenLevel(int level);
+void chooseSkin(int skin_num);
+void printChooseSkin(int skin_num);
 int speed = 1;
 
 class base_task
@@ -38,17 +41,17 @@ public:
         cout << "按下\"Enter\"确定所选模式";
         if (file_input == 0) {
             gotoxy(14, 9);
-            cout << "+------------+";
+            printf_yellow( "+------------+");
             gotoxy(14, 10);
-            cout << "|选择终端输入|";
+            printf_yellow("|选择终端输入|");
             gotoxy(14, 11);
-            cout << "+------------+";
+            printf_yellow("+------------+");
         }
         else {
             gotoxy(39, 9);
-            cout << "+------------+";
+            printf_yellow("+------------+");
             gotoxy(39, 10);
-            cout << "|选择文件输入|";
+            printf_yellow("|选择终端输入|");
             gotoxy(39, 11);
             cout << "+------------+";
         }
@@ -1377,7 +1380,7 @@ public:
     }
 };
 
-void showMenu(string name)
+void showMenu(string name,int level)
 {
     if (highest_level != 0)
     {
@@ -1412,10 +1415,42 @@ void showMenu(string name)
     printf_green("|  ");
     gotoxy(5, 12);
     printf_green("+-----+-----+-----+-----+");
+    gotoxy(5, 15);
+    cout << "注:黄色为可以挑战，红色不可挑战" << endl;
     gotoxy(5, 14);
-    cout << "注:黄色为可以挑战，红色不可挑战，只需输入1或2或3或4！" << endl;
-    gotoxy(5, 13);
-    cout << "请选择您想要挑战的关卡:";
+    cout << "请选择您想要挑战的关卡";
+    gotoxy(5, 16);
+    printf_red("按下\"a\",\"d\"切换关卡选择");
+    gotoxy(5, 17);
+    printf_red("按下\"Enter\"确定关卡");
+    if (level > 1) {
+        gotoxy(-1 + (level - 1) * 6, 10);//间隔为6
+        printf_green("+-----+");
+        gotoxy(-1 + (level - 1) * 6, 11);
+        printf_green("|");
+        gotoxy(5 + (level - 1) * 6, 11);
+        printf_green("|");
+        gotoxy(-1 + (level - 1) * 6, 12);
+        printf_green("+-----+");
+    }
+    if (level < 4) {
+        gotoxy(-1 + (level + 1) * 6, 10);//间隔为6
+        printf_green("+-----+");
+        gotoxy(-1 + (level + 1) * 6, 11);
+        printf_green("|");
+        gotoxy(5 + (level + 1) * 6, 11);
+        printf_green("|");
+        gotoxy(-1 + (level + 1) * 6, 12);
+        printf_green("+-----+");
+    }
+    gotoxy(-1 + level * 6, 10);//间隔为6
+    printf_yellow("+-----+");
+    gotoxy(-1 + level * 6, 11);
+    printf_yellow("|");
+    gotoxy(5 + level * 6, 11);
+    printf_yellow("|");
+    gotoxy(-1 + level * 6, 12);
+    printf_yellow("+-----+");
 }
 
 
@@ -1452,83 +1487,36 @@ int main()
     }
     system("cls");
     skinPrepare();
-point_skin:
-    gotoxy(10, 5);
-    cout << "+----------+";
-    for (int i = 0; i < 10; i++) {
-        gotoxy(10, 6 + i);
-        cout << "|";
-        gotoxy(21, 6 + i);
-        cout << "|";
-    }
-    gotoxy(10, 16);
-    cout << "+----------+";
-    gotoxy(10, 17);
-    cout << "皮肤1：";
-    gotoxy(10, 18);
-    cout << "原皮罢了";
-    gotoxy(30, 5);
-    cout << "+----------+";
-    for (int i = 0; i < 10; i++) {
-        gotoxy(30, 6 + i);
-        cout << "|";
-        gotoxy(41, 6 + i);
-        cout << "|";
-    }
-    gotoxy(30, 16);
-    cout << "+----------+";
-    gotoxy(30, 17);
-    cout << "皮肤2：";
-    gotoxy(30, 18);
-    cout << "Mamba back!";
-    gotoxy(50, 5);
-    cout << "+----------+";
-    for (int i = 0; i < 10; i++) {
-        gotoxy(50, 6 + i);
-        cout << "|";
-        gotoxy(61, 6 + i);
-        cout << "|";
-    }
-    gotoxy(50, 16);
-    cout << "+----------+";
-    gotoxy(50, 17);
-    cout << "皮肤3：";
-    gotoxy(50, 18);
-    cout << "比原皮还原皮";
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 5; j++) {
-            gotoxy(14 + 20 * i, 8 + j);
-            for (int k = 0; k < 5; k++) {
-                printf("%c", skin[i][j][k]);
+    int skin_num = 0;
+    bool waitForEnter = 1;
+    printChooseSkin(skin_num);
+    while (waitForEnter) {
+        if (_kbhit()) {
+            char ch = _getch();
+            if (ch == '\r') {
+                waitForEnter = 0;
+                system("cls");
+                break;
             }
+            else if (ch == 'a') {
+                if (skin_num>0)skin_num--;
+                chooseSkin(skin_num);
 
+            }
+            else if (ch == 'd') {
+                if (skin_num < 2)skin_num++;
+                chooseSkin(skin_num);
+            }
         }
     }
-    int skin_num = 1;
-    string skin_string;
-    gotoxy(30, 22);
-    cout << "请输入1,2,3";
-    gotoxy(30, 20);
-    cout << "请选择您的皮肤：";
-    getline(cin, skin_string);
-    if (skin_string.size() != 1 || skin_string[0] < '1' || skin_string[0] > '3') {
-        system("cls");
-        printf_red("输入错误,请输入正确的皮肤号！\n");
-        Sleep(2000);
-        system("cls");
-        goto point_skin;
-    }
-    else {
-        skin_num = skin_string[0] - '0';
-    }
-    strcpy(robot[0], skin[skin_num - 1][0]);
-    strcpy(robot[1], skin[skin_num - 1][1]);
-    strcpy(robot[2], skin[skin_num - 1][2]);
-    strcpy(robot[3], skin[skin_num - 1][3]);
-    strcpy(robot[4], skin[skin_num - 1][4]);
+    strcpy(robot[0], skin[skin_num][0]);
+    strcpy(robot[1], skin[skin_num][1]);
+    strcpy(robot[2], skin[skin_num][2]);
+    strcpy(robot[3], skin[skin_num][3]);
+    strcpy(robot[4], skin[skin_num][4]);
 
     system("cls");
-    bool waitForEnter = 1;
+    waitForEnter = 1;
     chooseSpeed();
     while (waitForEnter) {
         if (_kbhit()) {
@@ -1554,21 +1542,41 @@ point_skin:
     bool is_continue = true;
     while (is_continue)
     {
-        int user_choice = 0;
-        string chosen_level;
+        int user_choice = 1;
+        //string chosen_level;
     point_a:
-        showMenu(name);
-        getline(cin, chosen_level);
-        if (chosen_level.size() != 1 || chosen_level[0] < '1' || chosen_level[0] > '4') {
-            system("cls");
-            printf_red("输入错误,请输入正确的关卡编号！\n");
-            Sleep(2000);
-            system("cls");
-            goto point_a;
+        //int chosen_level;
+        waitForEnter = 1;
+        showMenu(name,user_choice);
+        while (waitForEnter) {
+            if (_kbhit()) {
+                char ch = _getch();
+                if (ch == '\r') {
+                    waitForEnter = 0;
+                    system("cls");
+                    break;
+                }
+                else if (ch == 'a') {
+                    if (user_choice > 1)user_choice--;
+                    showChosenLevel(user_choice);
+                }
+                else if (ch == 'd') {
+                    if (user_choice < 4)user_choice++;
+                    showChosenLevel(user_choice);
+                }
+            }
         }
-        else {
-            user_choice = chosen_level[0] - '0';
-        }// user_choice==chosen_level
+        //getline(cin, chosen_level);
+        //if (chosen_level.size() != 1 || chosen_level[0] < '1' || chosen_level[0] > '4') {
+        //    system("cls");
+        //    printf_red("输入错误,请输入正确的关卡编号！\n");
+        //    Sleep(2000);
+        //    system("cls");
+        //    goto point_a;
+        //}
+        //else {
+        //    user_choice = chosen_level[0] - '0';
+        //}// user_choice==chosen_level
         if (user_choice > (highest_level + 1))
         {
             system("cls");
@@ -1732,16 +1740,156 @@ void chooseSpeed() {
     gotoxy(55, 10);
     cout << "6";
     gotoxy(30, 20);
-    cout << "按下\"a\",\"d\"切换速度选择";
+    printf_red( "按下\"a\",\"d\"切换速度选择");
     gotoxy(30, 21);
-    cout << "按下\"Enter\"确定速度";
+    printf_red("按下\"Enter\"确定速度");
     gotoxy(23 + 5 * speed, 9);
-    cout << "*---*";
+    printf_yellow( "*---*");
     gotoxy(23 + 5 * speed, 11);
-    cout << "*---*";
+    printf_yellow("*---*");
     gotoxy(23 + 5 * speed, 10);
-    cout << "|";
+    printf_yellow("|");
     gotoxy(27 + 5 * speed, 10);
-    cout << "|";
+    printf_yellow("|");
 
+}
+
+void showChosenLevel(int level) {
+    if (level > 1) {
+        gotoxy(-1 + (level - 1) * 6,10);//间隔为6
+        printf_green("+-----+");
+        gotoxy(-1 + (level - 1) * 6, 11);
+        printf_green("|");
+        gotoxy(5 + (level - 1) * 6, 11);
+        printf_green("|");
+        gotoxy(-1 + (level - 1) * 6, 12);
+        printf_green("+-----+");
+    }
+    if (level < 4) {
+        gotoxy(-1 + (level + 1) * 6, 10);//间隔为6
+        printf_green("+-----+");
+        gotoxy(-1 + (level + 1) * 6, 11);
+        printf_green("|");
+        gotoxy(5 + (level+1) * 6, 11);
+        printf_green("|");
+        gotoxy(-1 + (level + 1) * 6, 12);
+        printf_green("+-----+");
+    }
+    gotoxy(-1 + level * 6, 10);//间隔为6
+    printf_yellow ("+-----+");
+    gotoxy(-1 + level * 6, 11);
+    printf_yellow ("|");
+    gotoxy(5 + level * 6, 11);
+    printf_yellow("|");
+    gotoxy(-1 + level * 6, 12);
+    printf_yellow("+-----+");
+
+}
+
+
+void chooseSkin(int skin_num) {
+    if (skin_num > 0) {
+        gotoxy(-10 + skin_num * 20, 5);
+        printf("+----------+");
+        for (int i = 0; i < 10; i++) {
+            gotoxy(-10 + skin_num * 20, 6 + i);
+            printf("|");
+            gotoxy(1 + skin_num * 20, 6 + i);
+            printf("|");
+        }
+        gotoxy(-10 + skin_num * 20, 16);
+        printf("+----------+");
+    }
+    if (skin_num < 2) {
+        gotoxy(30 + skin_num * 20, 5);
+        printf("+----------+");
+        for (int i = 0; i < 10; i++) {
+            gotoxy(30 + skin_num * 20, 6 + i);
+            printf("|");
+            gotoxy(41 + skin_num * 20, 6 + i);
+            printf("|");
+        }
+        gotoxy(30 + skin_num * 20, 16);
+        printf("+----------+");
+    }
+    gotoxy(10 + skin_num*20, 5);
+    printf_yellow( "+----------+");
+    for (int i = 0; i < 10; i++) {
+        gotoxy(10 + skin_num*20, 6 + i);
+        printf_yellow("|");
+        gotoxy(21 + skin_num*20, 6 + i);
+        printf_yellow("|");
+    }
+    gotoxy(10 + skin_num*20, 16);
+    printf_yellow("+----------+");
+}
+
+void printChooseSkin(int skin_num) {
+    gotoxy(10, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(10, 6 + i);
+        cout << "|";
+        gotoxy(21, 6 + i);
+        cout << "|";
+    }
+    gotoxy(10, 16);
+    cout << "+----------+";
+    gotoxy(10, 17);
+    cout << "皮肤1：";
+    gotoxy(10, 18);
+    cout << "原皮罢了";
+    gotoxy(30, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(30, 6 + i);
+        cout << "|";
+        gotoxy(41, 6 + i);
+        cout << "|";
+    }
+    gotoxy(30, 16);
+    cout << "+----------+";
+    gotoxy(30, 17);
+    cout << "皮肤2：";
+    gotoxy(30, 18);
+    cout << "Mamba back!";
+    gotoxy(50, 5);
+    cout << "+----------+";
+    for (int i = 0; i < 10; i++) {
+        gotoxy(50, 6 + i);
+        cout << "|";
+        gotoxy(61, 6 + i);
+        cout << "|";
+    }
+    gotoxy(50, 16);
+    cout << "+----------+";
+    gotoxy(50, 17);
+    cout << "皮肤3：";
+    gotoxy(50, 18);
+    cout << "比原皮还原皮";
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            gotoxy(14 + 20 * i, 8 + j);
+            for (int k = 0; k < 5; k++) {
+                printf("%c", skin[i][j][k]);
+            }
+
+        }
+    }
+    gotoxy(30, 20);
+    cout << "请选择您的皮肤";
+    gotoxy(30, 21);
+    printf_red("按下\"a\",\"d\"切换皮肤选择");
+    gotoxy(30, 22);
+    printf_red("按下\"Enter\"确定皮肤");
+    gotoxy(10 + skin_num * 20, 5);
+    printf_yellow("+----------+");
+    for (int i = 0; i < 10; i++) {
+        gotoxy(10 + skin_num * 20, 6 + i);
+        printf_yellow("|");
+        gotoxy(21 + skin_num * 20, 6 + i);
+        printf_yellow("|");
+    }
+    gotoxy(10 + skin_num * 20, 16);
+    printf_yellow("+----------+");
 }

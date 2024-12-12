@@ -1433,7 +1433,7 @@ int main()
     cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
     gotoxy(30, 10);
     cout << "请输入您的玩家信息：";
-    cin >> name;
+    getline(cin, name);
     string progress = name + ".txt";
     fstream fs;
     fs.open(progress, ios::in);
@@ -1510,7 +1510,7 @@ point_skin:
     cout << "请输入1,2,3";
     gotoxy(30, 20);
     cout << "请选择您的皮肤：";
-    cin >> skin_string;
+    getline(cin, skin_string);
     if (skin_string.size() != 1 || skin_string[0] < '1' || skin_string[0] > '3') {
         system("cls");
         printf_red("输入错误,请输入正确的皮肤号！\n");
@@ -1558,7 +1558,7 @@ point_skin:
         string chosen_level;
     point_a:
         showMenu(name);
-        cin >> chosen_level;
+        getline(cin, chosen_level);
         if (chosen_level.size() != 1 || chosen_level[0] < '1' || chosen_level[0] > '4') {
             system("cls");
             printf_red("输入错误,请输入正确的关卡编号！\n");

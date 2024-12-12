@@ -1566,17 +1566,6 @@ int main()
                 }
             }
         }
-        //getline(cin, chosen_level);
-        //if (chosen_level.size() != 1 || chosen_level[0] < '1' || chosen_level[0] > '4') {
-        //    system("cls");
-        //    printf_red("输入错误,请输入正确的关卡编号！\n");
-        //    Sleep(2000);
-        //    system("cls");
-        //    goto point_a;
-        //}
-        //else {
-        //    user_choice = chosen_level[0] - '0';
-        //}// user_choice==chosen_level
         if (user_choice > (highest_level + 1))
         {
             system("cls");
@@ -1754,7 +1743,7 @@ void chooseSpeed() {
 
 }
 
-void showChosenLevel(int level) {
+void showChosenLevel(int level) {//打印关卡框
     if (level > 1) {
         gotoxy(-1 + (level - 1) * 6,10);//间隔为6
         printf_green("+-----+");
@@ -1787,7 +1776,7 @@ void showChosenLevel(int level) {
 }
 
 
-void chooseSkin(int skin_num) {
+void chooseSkin(int skin_num) {//打印皮肤框
     if (skin_num > 0) {
         gotoxy(-10 + skin_num * 20, 5);
         printf("+----------+");
@@ -1824,7 +1813,7 @@ void chooseSkin(int skin_num) {
     printf_yellow("+----------+");
 }
 
-void printChooseSkin(int skin_num) {
+void printChooseSkin(int skin_num) {//打印皮肤
     gotoxy(10, 5);
     cout << "+----------+";
     for (int i = 0; i < 10; i++) {

@@ -11,7 +11,7 @@
 using namespace std;
 void printf_red(const char* s);
 void printf_green(const char* s);
-void printf_yellow(const char* s); 
+void printf_yellow(const char* s);
 void gotoxy(int x, int y);
 void chooseSpeed();
 
@@ -20,9 +20,9 @@ string level_name[4] = { "收发室", "sub走廊", "平等化室", "三合院" }
 string all_instructs[6] = { "copyfrom","copyto","add","sub","jump","jumpifzero" };
 char skin[3][5][6];
 char robot[5][6];
-void skinPrepare(); 
+void skinPrepare();
 void pressEnter();
-int speed=1;
+int speed = 1;
 
 class base_task
 {
@@ -67,10 +67,10 @@ public:
                     return file_input;
                 }
                 else if (ch == 'a') {
-                    file_input = 0; 
+                    file_input = 0;
                     system("cls");
                     printChooseInput(file_input);
-                    
+
                 }
                 else if (ch == 'd') {
                     file_input = 1;
@@ -97,7 +97,7 @@ public:
         int weishu = 1;
         for (int i = size_instruct - 1; i >= 0; i--) {
             if (instruct[i] < '0' || instruct[i] > '9') break;
-            num += (instruct[i]-'0')*weishu;
+            num += (instruct[i] - '0') * weishu;
             weishu *= 10;
         }
         return num;
@@ -133,7 +133,7 @@ public:
         }
     }
     bool checkAdd(string instruct) {
-        int size_instruct=instruct.size();
+        int size_instruct = instruct.size();
         if (size_instruct <= 3) return 0;
         else {
             for (int i = 0; i < 3; i++) {
@@ -192,7 +192,7 @@ public:
             return 1;
         }
     }
-    
+
     void recordGame(string progress)     //记录游戏记录
     {
         ofstream ofs;
@@ -257,8 +257,8 @@ public:
         gotoxy(x1, y1);
         cout << "+---+";
         gotoxy(x1, y1 + 1);
-        if (num >=0&&num<=9) cout << "| " << num << " |";
-        else if ((num>=10&&num<=99)||(num<0&&num>-10)) cout << "| " << num << "|";
+        if (num >= 0 && num <= 9) cout << "| " << num << " |";
+        else if ((num >= 10 && num <= 99) || (num<0 && num>-10)) cout << "| " << num << "|";
         else cout << "|" << num << "|";
         gotoxy(x1, y1 + 2);
         cout << "+---+";
@@ -283,7 +283,7 @@ public:
         }
         if (x1 < 29) {
             for (int i = 10; i <= 18; i++) {
-                gotoxy(x1+5 , i);
+                gotoxy(x1 + 5, i);
                 //gotoxy(x1+4 , i);
                 cout << ' ';
             }
@@ -296,14 +296,14 @@ public:
             cout << "@   @";
         }
         for (int i = 0; i < 5; i++) {
-            gotoxy(x1, 14+i);
+            gotoxy(x1, 14 + i);
             for (int j = 0; j < 5; j++) {
                 cout << robot[i][j];
             }
-            
+
         }
     }
-    
+
     void getInstructs(int n, vector<string>& instructs) {//vector容器存储用户输入的指令集
         string input;
         getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
@@ -318,7 +318,7 @@ public:
     void printInbox(vector<int>& inbox) {//打印inbox
         gotoxy(0, 8);
         cout << "Inbox" << endl << endl;
-        int inbox_size = min(6,inbox.size());
+        int inbox_size = min(6, inbox.size());
         for (int i = 0; i < inbox_size; i++) {
             showBlock(inbox[i], 0, 10 + i * 3);
         }
@@ -330,7 +330,7 @@ public:
     void printOutbox(vector<int>& outbox) {//打印outbox
         gotoxy(34, 8);
         cout << "Outbox";
-        int outbox_size = outbox.size() ;
+        int outbox_size = outbox.size();
         if (outbox_size <= 6) {
             for (int i = 0; i < outbox_size; i++) {
                 showBlock(outbox[outbox_size - 1 - i], 34, 10 + i * 3);
@@ -344,17 +344,17 @@ public:
         else {
             int j = 0;
             for (int i = outbox_size - 6; i < outbox_size; i++) {
-                showBlock(outbox[2*outbox_size - 7 - i], 34, 10 + j * 3);
+                showBlock(outbox[2 * outbox_size - 7 - i], 34, 10 + j * 3);
                 j++;
             }
         }
-        
+
     }
     void fromSpacexToSpacey(bool carry, int Spacex, int Spacey, int carry_num) {//机器人从空地x移动到空地y的上方
         if (Spacex > Spacey) {
             for (int i = 10 + Spacex * 4; i >= 10 + Spacey * 4; i--) {
                 showRobot(carry, i, carry_num);
-                Sleep(600/speed);
+                Sleep(600 / speed);
             }
         }
         else if (Spacex < Spacey) {
@@ -413,7 +413,7 @@ public:
         }
         return onhand;
     }
-    int instructCopyfrom(bool carry,int on_hand, int num,int space[]) {
+    int instructCopyfrom(bool carry, int on_hand, int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand = space[num];
         Sleep(900 / speed);
@@ -426,25 +426,25 @@ public:
         fromSpacexToSpacey(carry, 0, num, on_hand);
         space[num] = on_hand;
         Sleep(900 / speed);
-        gotoxy(11+num*4, 21);
-        cout<<"   ";
+        gotoxy(11 + num * 4, 21);
+        cout << "   ";
         gotoxy(11 + num * 4, 21);
         cout << space[num];
         fromSpacexToSpacey(carry, num, 0, on_hand);
         return on_hand;
     }
-    int instructAdd(bool carry,int on_hand,int num, int space[]) {
+    int instructAdd(bool carry, int on_hand, int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand += space[num];
-        Sleep(900/speed);
-        showRobot(1, 10+num*4, on_hand);
+        Sleep(900 / speed);
+        showRobot(1, 10 + num * 4, on_hand);
         fromSpacexToSpacey(carry, num, 0, on_hand);
         return on_hand;
     }
     int instructSub(bool carry, int on_hand, int num, int space[]) {
         fromSpacexToSpacey(carry, 0, num, on_hand);
         on_hand -= space[num];
-        Sleep(900/speed);
+        Sleep(900 / speed);
         showRobot(1, 10 + num * 4, on_hand);
         fromSpacexToSpacey(carry, num, 0, on_hand);
         return on_hand;
@@ -656,7 +656,7 @@ public:
     }
     void dotask()
     {
-        bool file_input=0;
+        bool file_input = 0;
         printf_yellow("您当前游玩的关卡是: 收发室");
         Sleep(2000);
     next_1:
@@ -752,7 +752,7 @@ public:
             }
             for (int i = 1; i <= n; i++) {
                 gotoxy(61, 8 + i);
-                cout << i << ' '<<instructs[i-1];
+                cout << i << ' ' << instructs[i - 1];
             }
         }
         //以上这部分均为输入
@@ -765,7 +765,7 @@ public:
                 gotoxy(80, 16);
                 cout << "on instruction " << error_on;
             }
-            else if (outbox.size() !=2 ) printf_red("Fail");//outbox中数不为2个,结果一定错误
+            else if (outbox.size() != 2) printf_red("Fail");//outbox中数不为2个,结果一定错误
             gotoxy(80, 17);
             cout << "按下\"Enter\"重新开始";
             bool waitForEnter = 1;
@@ -805,7 +805,7 @@ public:
         printf_green("Success");
         Sleep(2000);
         finish_level = 1;
-        system("cls"); 
+        system("cls");
     }
 };
 
@@ -824,7 +824,7 @@ public:
         srand(time(0));
         int num[8];
         for (int i = 0; i < 8; i++) {
-            num[i] = rand() % 40-20;
+            num[i] = rand() % 40 - 20;
         }
         vector<int> inbox;
         for (int i = 0; i < 8; i++) {
@@ -857,7 +857,7 @@ public:
         }//打印新的可用代码
 
         printScreen(inbox, outbox);
-        
+
         // 关卡内容
         if (file_input == 0) {
             cin >> n_string;
@@ -954,7 +954,7 @@ public:
 
         for (int i = 0; i < 8; i++) {//outbox有8个数时
             if (i % 2 == 0) {//第0，2，4，6个数，为num[i]-num[i+1]
-                if (outbox[i] != num[i]-num[i+1]) {
+                if (outbox[i] != num[i] - num[i + 1]) {
                     gotoxy(89, 15);
                     printf_red("Fail");
                     gotoxy(80, 17);
@@ -972,7 +972,7 @@ public:
                 }
             }
             else {//第1，3，5，7个数，为num[i]-num[i-1]
-                if (outbox[i] != num[i] - num[i-1]) {
+                if (outbox[i] != num[i] - num[i - 1]) {
                     gotoxy(89, 15);
                     printf_red("Fail");
                     gotoxy(80, 17);
@@ -988,7 +988,7 @@ public:
                     }
                     goto next_2;
                 }
-            }            
+            }
         }
         // if success
         gotoxy(89, 15);
@@ -1015,7 +1015,7 @@ public:
         srand(time(0));
         int num[8];
         vector<int> answer;
-        for (int i = 0; i < 8; i+=2) {
+        for (int i = 0; i < 8; i += 2) {
             num[i] = rand() % 10;
             if (rand() % 2) {
                 num[i + 1] = num[i];
@@ -1023,7 +1023,7 @@ public:
                 equal_total++;
             }
             else {
-                num[i+1] = rand() % 10;
+                num[i + 1] = rand() % 10;
                 if (num[i + 1] == num[i]) {
                     answer.push_back(num[i]);
                     equal_total++;
@@ -1176,10 +1176,10 @@ public:
                         }
                     }
                 }
-                    goto next_3;
+                goto next_3;
             }
         }
-        
+
         // 关卡内容
 
         // if success
@@ -1384,7 +1384,7 @@ void showMenu(string name)
         gotoxy(5, 8);
         cout << "欢迎回归" << name;
         gotoxy(5, 9);
-        cout << "您当前游玩的最高纪录为:第" << highest_level << "关" ;
+        cout << "您当前游玩的最高纪录为:第" << highest_level << "关";
     }
     else
     {
@@ -1415,14 +1415,14 @@ void showMenu(string name)
     gotoxy(5, 14);
     cout << "注:黄色为可以挑战，红色不可挑战，只需输入1或2或3或4！" << endl;
     gotoxy(5, 13);
-    cout << "请选择您想要挑战的关卡:" ;
+    cout << "请选择您想要挑战的关卡:";
 }
 
 
 
 int main()
 {
-    gotoxy(40,10);
+    gotoxy(40, 10);
     printf_yellow("Human Resource Machine by 何雨宸和陈家睦\n");
     gotoxy(50, 12);
     cout << "按下\"Enter\"开始游戏";
@@ -1452,11 +1452,11 @@ int main()
     }
     system("cls");
     skinPrepare();
-    point_skin:
+point_skin:
     gotoxy(10, 5);
     cout << "+----------+";
     for (int i = 0; i < 10; i++) {
-        gotoxy(10, 6+i);
+        gotoxy(10, 6 + i);
         cout << "|";
         gotoxy(21, 6 + i);
         cout << "|";
@@ -1496,13 +1496,13 @@ int main()
     gotoxy(50, 18);
     cout << "比原皮还原皮";
     for (int i = 0; i < 3; i++) {
-         for (int j = 0; j < 5; j++) {
-             gotoxy(14 + 20 * i,8+j);
-             for (int k = 0; k < 5; k++) {
-                 printf("%c", skin[i][j][k]);
-             }
-   
-         }
+        for (int j = 0; j < 5; j++) {
+            gotoxy(14 + 20 * i, 8 + j);
+            for (int k = 0; k < 5; k++) {
+                printf("%c", skin[i][j][k]);
+            }
+
+        }
     }
     int skin_num = 1;
     string skin_string;
@@ -1521,11 +1521,11 @@ int main()
     else {
         skin_num = skin_string[0] - '0';
     }
-    strcpy(robot[0], skin[skin_num-1][0]);
-    strcpy(robot[1], skin[skin_num-1][1]);
-    strcpy(robot[2], skin[skin_num-1][2]);
-    strcpy(robot[3], skin[skin_num-1][3]);
-    strcpy(robot[4], skin[skin_num-1][4]);
+    strcpy(robot[0], skin[skin_num - 1][0]);
+    strcpy(robot[1], skin[skin_num - 1][1]);
+    strcpy(robot[2], skin[skin_num - 1][2]);
+    strcpy(robot[3], skin[skin_num - 1][3]);
+    strcpy(robot[4], skin[skin_num - 1][4]);
 
     system("cls");
     bool waitForEnter = 1;
@@ -1539,7 +1539,7 @@ int main()
                 break;
             }
             else if (ch == 'a') {
-                if(speed>1)speed--;
+                if (speed > 1)speed--;
                 system("cls");
                 chooseSpeed();
 
@@ -1554,12 +1554,12 @@ int main()
     bool is_continue = true;
     while (is_continue)
     {
-    int user_choice = 0;
-    string chosen_level;
+        int user_choice = 0;
+        string chosen_level;
     point_a:
         showMenu(name);
         cin >> chosen_level;
-        if (chosen_level.size() != 1 || chosen_level[0] < '0' || chosen_level[0] > '4') {
+        if (chosen_level.size() != 1 || chosen_level[0] < '1' || chosen_level[0] > '4') {
             system("cls");
             printf_red("输入错误,请输入正确的关卡编号！\n");
             Sleep(2000);
@@ -1575,7 +1575,7 @@ int main()
             printf_red("您必须先通关先前的关卡!\n");
             Sleep(2000);
             system("cls");
-            return -1;
+            goto point_a;
         }
         else
         {
@@ -1682,7 +1682,7 @@ void gotoxy(int x, int y) { //更改光标位置，实现在指定位置输出�
     SetConsoleCursorPosition(hOut, pos);
 }
 
-void skinPrepare(){
+void skinPrepare() {
 
     strcpy(skin[0][0], "-----");
     strcpy(skin[0][1], "|@ @|");

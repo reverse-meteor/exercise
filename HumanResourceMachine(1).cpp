@@ -41,7 +41,7 @@ public:
         cout << "按下\"Enter\"确定所选模式";
         if (file_input == 0) {
             gotoxy(14, 9);
-            printf_yellow( "+------------+");
+            printf_yellow("+------------+");
             gotoxy(14, 10);
             printf_yellow("|选择终端输入|");
             gotoxy(14, 11);
@@ -51,9 +51,9 @@ public:
             gotoxy(39, 9);
             printf_yellow("+------------+");
             gotoxy(39, 10);
-            printf_yellow("|选择终端输入|");
+            printf_yellow("|选择文件输入|");
             gotoxy(39, 11);
-            cout << "+------------+";
+            printf_yellow("+------------+");
         }
     }
     bool checkFile() {
@@ -86,12 +86,12 @@ public:
     string getFileName() {
         string file_name;
         gotoxy(30, 13);
-        cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容";
+        //cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容";
         gotoxy(34, 14);
-        cout << "且默认文件格式为.txt。即若为x.txt，请输入x";
+        cout << "默认文件格式为.txt。即若为x.txt，请输入x";
         gotoxy(30, 10);
         cout << "请输入导入文件名：";
-        cin >> file_name;
+        getline(cin,file_name);
         return file_name + ".txt";
     }
     int getNumFromInstruct(string instruct) {
@@ -230,7 +230,7 @@ public:
         cout << "您是否要继续游玩下一关?" << endl;
         cout << "继续游玩请输入是,退出游戏请输入否" << endl;
         string continue_choice;
-        cin >> continue_choice;
+        getline(cin,continue_choice);
         if (continue_choice == "是")
         {
             system("cls");
@@ -692,7 +692,7 @@ public:
         printScreen(inbox, outbox);
         //以下为输入
         if (file_input == 0) {
-            cin >> n_string;
+            getline(cin, n_string);
             int weishu = 1;
             for (int i = n_string.size() - 1; i >= 0; i--) {
                 if (n_string[i] < '0' || n_string[i] > '9') {
@@ -863,7 +863,7 @@ public:
 
         // 关卡内容
         if (file_input == 0) {
-            cin >> n_string;
+            getline(cin, n_string);
             int weishu = 1;
             for (int i = n_string.size() - 1; i >= 0; i--) {
                 if (n_string[i] < '0' || n_string[i] > '9') {
@@ -1072,7 +1072,7 @@ public:
 
         // 关卡内容
         if (file_input == 0) {
-            cin >> n_string;
+            getline(cin, n_string);
             int weishu = 1;
             for (int i = n_string.size() - 1; i >= 0; i--) {
                 if (n_string[i] < '0' || n_string[i] > '9') {
@@ -1258,7 +1258,7 @@ public:
 
         // 关卡内容
         if (file_input == 0) {
-            cin >> n_string;
+            getline(cin, n_string);
             int weishu = 1;
             for (int i = n_string.size() - 1; i >= 0; i--) {
                 if (n_string[i] < '0' || n_string[i] > '9') {
@@ -1380,7 +1380,7 @@ public:
     }
 };
 
-void showMenu(string name,int level)
+void showMenu(string name, int level)
 {
     if (highest_level != 0)
     {
@@ -1464,9 +1464,9 @@ int main()
     pressEnter();
     system("cls");
     string name;
-    gotoxy(30, 12);
-    cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
-    gotoxy(30, 10);
+    //gotoxy(30, 12);
+    //cout << "注：名字中请勿输入空格，否则仅读入第一个空格以前的内容作为名字";
+    gotoxy(35, 10);
     cout << "请输入您的玩家信息：";
     getline(cin, name);
     string progress = name + ".txt";
@@ -1499,7 +1499,7 @@ int main()
                 break;
             }
             else if (ch == 'a') {
-                if (skin_num>0)skin_num--;
+                if (skin_num > 0)skin_num--;
                 chooseSkin(skin_num);
 
             }
@@ -1547,7 +1547,7 @@ int main()
     point_a:
         //int chosen_level;
         waitForEnter = 1;
-        showMenu(name,user_choice);
+        showMenu(name, user_choice);
         while (waitForEnter) {
             if (_kbhit()) {
                 char ch = _getch();
@@ -1729,11 +1729,11 @@ void chooseSpeed() {
     gotoxy(55, 10);
     cout << "6";
     gotoxy(30, 20);
-    printf_red( "按下\"a\",\"d\"切换速度选择");
+    printf_red("按下\"a\",\"d\"切换速度选择");
     gotoxy(30, 21);
     printf_red("按下\"Enter\"确定速度");
     gotoxy(23 + 5 * speed, 9);
-    printf_yellow( "*---*");
+    printf_yellow("*---*");
     gotoxy(23 + 5 * speed, 11);
     printf_yellow("*---*");
     gotoxy(23 + 5 * speed, 10);
@@ -1745,7 +1745,7 @@ void chooseSpeed() {
 
 void showChosenLevel(int level) {//打印关卡框
     if (level > 1) {
-        gotoxy(-1 + (level - 1) * 6,10);//间隔为6
+        gotoxy(-1 + (level - 1) * 6, 10);//间隔为6
         printf_green("+-----+");
         gotoxy(-1 + (level - 1) * 6, 11);
         printf_green("|");
@@ -1759,15 +1759,15 @@ void showChosenLevel(int level) {//打印关卡框
         printf_green("+-----+");
         gotoxy(-1 + (level + 1) * 6, 11);
         printf_green("|");
-        gotoxy(5 + (level+1) * 6, 11);
+        gotoxy(5 + (level + 1) * 6, 11);
         printf_green("|");
         gotoxy(-1 + (level + 1) * 6, 12);
         printf_green("+-----+");
     }
     gotoxy(-1 + level * 6, 10);//间隔为6
-    printf_yellow ("+-----+");
+    printf_yellow("+-----+");
     gotoxy(-1 + level * 6, 11);
-    printf_yellow ("|");
+    printf_yellow("|");
     gotoxy(5 + level * 6, 11);
     printf_yellow("|");
     gotoxy(-1 + level * 6, 12);
@@ -1801,15 +1801,15 @@ void chooseSkin(int skin_num) {//打印皮肤框
         gotoxy(30 + skin_num * 20, 16);
         printf("+----------+");
     }
-    gotoxy(10 + skin_num*20, 5);
-    printf_yellow( "+----------+");
+    gotoxy(10 + skin_num * 20, 5);
+    printf_yellow("+----------+");
     for (int i = 0; i < 10; i++) {
-        gotoxy(10 + skin_num*20, 6 + i);
+        gotoxy(10 + skin_num * 20, 6 + i);
         printf_yellow("|");
-        gotoxy(21 + skin_num*20, 6 + i);
+        gotoxy(21 + skin_num * 20, 6 + i);
         printf_yellow("|");
     }
-    gotoxy(10 + skin_num*20, 16);
+    gotoxy(10 + skin_num * 20, 16);
     printf_yellow("+----------+");
 }
 

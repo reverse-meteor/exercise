@@ -309,7 +309,7 @@ public:
 
     void getInstructs(int n, vector<string>& instructs) {//vector容器存储用户输入的指令集
         string input;
-        getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
+       // getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
         for (int i = 1; i <= n; i++) {
             gotoxy(61, 8 + i);
             cout << i << ' ';
@@ -1243,7 +1243,7 @@ public:
         // 关卡内容
         cout << "这是你的最后一天" << endl;
         cout << "关卡信息:对于inbox中的三个东西" << endl
-            << "如果某一个等于另外两个的和，则把第一个数放到oubox中" << endl
+            << "如果某一个等于另外两个的和，则把第一个数放到outbox中" << endl
             << "不相等的扔掉，重复";
         cout << "可用空地数:3" << endl;
         cout << "可用指令集:inbox,outbox,copyfrom,copyto,add,sub,jump,jump if zero" << endl;

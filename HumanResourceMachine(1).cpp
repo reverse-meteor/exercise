@@ -91,7 +91,7 @@ public:
         cout << "默认文件格式为.txt。即若为x.txt，请输入x";
         gotoxy(30, 10);
         cout << "请输入导入文件名：";
-        getline(cin,file_name);
+        getline(cin, file_name);
         return file_name + ".txt";
     }
     int getNumFromInstruct(string instruct) {
@@ -230,7 +230,7 @@ public:
         cout << "您是否要继续游玩下一关?" << endl;
         cout << "继续游玩请输入是,退出游戏请输入否" << endl;
         string continue_choice;
-        getline(cin,continue_choice);
+        getline(cin, continue_choice);
         if (continue_choice == "是")
         {
             system("cls");
@@ -309,9 +309,9 @@ public:
 
     void getInstructs(int n, vector<string>& instructs) {//vector容器存储用户输入的指令集
         string input;
-       // getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
+        // getline(cin, input);//getline()函数实现每次读取用户换行前的内容，即每条指令
         for (int i = 1; i <= n; i++) {
-            gotoxy(61, 8 + i);
+            gotoxy(61, 7 + i);
             cout << i << ' ';
             getline(cin, input);
             instructs.push_back(input);
@@ -461,10 +461,10 @@ public:
         printOutbox(outbox);
 
 
-        for (int i = 0; i < 23; i++) {
-            gotoxy(41, 7 + i);
+        for (int i = 0; i < 24; i++) {
+            gotoxy(41, 6 + i);
             cout << '|';
-            gotoxy(57, 7 + i);
+            gotoxy(57, 6 + i);
             cout << '|';
         }
 
@@ -500,9 +500,9 @@ public:
         gotoxy(79, 18);
         cout << "+--------------------+";
 
-        gotoxy(59, 7);
+        gotoxy(59, 6);
         cout << "=====CODE=====";
-        gotoxy(61, 8);
+        gotoxy(61, 7);
         cout << "0 ";
         /*gotoxy()*/
     }
@@ -517,11 +517,11 @@ public:
         int on_hand = 1000;
         bool carry = 0;
         for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
-            gotoxy(59, 8 + i);
+            gotoxy(59, 7 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
                 if (inbox.size() == 0) {
-                    gotoxy(59, 8 + i);
+                    gotoxy(59, 7 + i);
                     cout << "  ";
                     return 0;
                 }//程序结束
@@ -606,7 +606,7 @@ public:
             else {
                 return i;
             }
-            gotoxy(59, 8 + i);
+            gotoxy(59, 7 + i);
             cout << "  ";
         }
         return 0;
@@ -624,11 +624,11 @@ public:
         int on_hand = 1000;
         bool carry = 0;
         for (int i = 1; i <= n; i++) {//copyfrom,copyto,add,sub,jump,jump if zero
-            gotoxy(59, 8 + i);
+            gotoxy(59, 7 + i);
             cout << "->";
             if (instructs[i - 1] == "inbox") {
                 if (inbox.size() == 0) {
-                    gotoxy(59, 8 + i);
+                    gotoxy(59, 7 + i);
                     cout << "  ";
                     return 0;
                 }//程序结束
@@ -652,7 +652,7 @@ public:
             else {
                 return i;
             }
-            gotoxy(59, 8 + i);
+            gotoxy(59, 7 + i);
             cout << "  ";
         }
         return 0;
@@ -744,7 +744,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 8);
+            gotoxy(63, 7);
             cout << n;
             string input;
             getline(file_in, input);
@@ -754,7 +754,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 8 + i);
+                gotoxy(61, 7 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }
@@ -915,7 +915,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 9);
+            gotoxy(63, 7);
             cout << n;
             string input;
             getline(file_in, input);
@@ -925,7 +925,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 8 + i);
+                gotoxy(61, 7 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }
@@ -1124,7 +1124,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 8);
+            gotoxy(63, 7);
             cout << n;
             string input;
             getline(file_in, input);
@@ -1134,7 +1134,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 8 + i);
+                gotoxy(61, 7 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }
@@ -1310,7 +1310,7 @@ public:
                 n += (n_string[i] - '0') * weishu;
                 weishu *= 10;
             }
-            gotoxy(63, 8);
+            gotoxy(63, 7);
             cout << n;
             string input;
             getline(file_in, input);
@@ -1320,7 +1320,7 @@ public:
                 instructs.push_back(input);
             }
             for (int i = 1; i <= n; i++) {
-                gotoxy(61, 8 + i);
+                gotoxy(61, 7 + i);
                 cout << i << ' ' << instructs[i - 1];
             }
         }

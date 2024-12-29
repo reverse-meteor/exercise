@@ -98,10 +98,17 @@ public:
         int size_instruct = instruct.size();
         int num = 0;
         int weishu = 1;
-        for (int i = size_instruct - 1; i >= 0; i--) {
+        int i = size_instruct - 1;
+        for (; i >= 0; i--) {
             if (instruct[i] < '0' || instruct[i] > '9') break;
             num += (instruct[i] - '0') * weishu;
             weishu *= 10;
+        }
+        for (; i >= 0; i--) {//避免发生 instruct num1 num2的情况
+            if (instruct[i] >= '0' && instruct[i] <= '9') {
+                num = -1;
+                break;
+            }
         }
         return num;
     }
@@ -544,7 +551,7 @@ public:
             }
             else if (checkCopyfrom(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3 || space[num] == -1000) return i;//-1000表示它是空的
+                if ( num < 0 ||num >= 3 || space[num] == -1000) return i;//-1000表示它是空的
                 else {
                     //on_hand放到编号为num的空地上
                     on_hand = instructCopyfrom(carry, on_hand, num, space);
@@ -553,7 +560,7 @@ public:
             }
             else if (checkCopyto(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3) return i;
+                if (num < 0 || num >= 3) return i;
                 else if (carry == 0) return i;
                 else {
                     //on_hand放到编号为num的空地上
@@ -563,7 +570,7 @@ public:
             }
             else if (checkAdd(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3 || carry == 0 || space[num] == -1000) return i;
+                if (num < 0 || num >= 3 || carry == 0 || space[num] == -1000) return i;
                 else {
                     //on_hand加上编号为num的空地上的数
                     on_hand = instructAdd(carry, on_hand, num, space);
@@ -572,7 +579,7 @@ public:
             }
             else if (checkSub(instructs[i - 1])) {
                 int num = getNumFromInstruct(instructs[i - 1]);
-                if (num >= 3 || carry == 0 || space[num] == -1000) return i;
+                if (num < 0 || num >= 3 || carry == 0 || space[num] == -1000) return i;
                 else if (carry == 0) return i;
                 else {
                     //on_hand减去编号为num的空地上的数
